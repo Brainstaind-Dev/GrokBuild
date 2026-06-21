@@ -1,0 +1,72 @@
+# ReflexKernel — Pure Simulation Profile
+# No hardware, no heavy ML models. Perfect for rapid iteration and demos.
+
+kernel:
+  tick_rate_hz: 20
+  log_level: "INFO"
+  seed: 1337
+
+perception:
+  enabled_sensors:
+    - simulation
+  simulation:
+    interactive: true
+    auto_events: true
+    auto_event_interval_s: 3.2
+
+bridge:
+  structured_seeds: true
+  keyword_rules: true
+  use_sentence_transformers: false
+  use_sentiment: false
+  fusion:
+    arousal_decay_per_tick: 0.04
+    valence_decay_per_tick: 0.015
+    stimulus_weight: 0.7
+    thought_weight: 0.5
+
+reflex:
+  enabled_primitives:
+    - flinch
+    - blink
+    - tension
+    - orient
+    - freeze
+    - autonomic
+  base_sensitivity: 0.85
+
+learner:
+  enabled: true
+  store_path: "data/learned_sim"
+  imitation:
+    enabled: true
+    similarity_threshold: 0.65
+  reinforcement:
+    enabled: true
+    learning_rate: 0.12
+
+output:
+  visualization: "pygame"
+  log_structured: true
+  avatar:
+    width: 720
+    height: 520
+    show_stimuli_overlay: true
+    show_reflex_traces: true
+
+interface:
+  mode: "stdio"
+  stdio:
+    enabled: true
+    pretty: true
+  websocket:
+    enabled: false
+  server:
+    enabled: false
+    host: "127.0.0.1"
+    port: 8000
+    api_key: "reflexkernel-dev"
+    cors_origins: ["*"]
+    enable_rate_limit: true
+    rate_limit_per_minute: 120
+    ws_path: "/ws/events"

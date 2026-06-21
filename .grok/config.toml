@@ -1,0 +1,24 @@
+# Project-scoped Grok config for I:\grokbuild
+# MCP servers here override user-scoped servers with the same name.
+
+[mcp_servers.puppeteer]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-puppeteer"]
+enabled = true
+startup_timeout_sec = 30
+
+[mcp_servers.github]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-github"]
+enabled = false
+env = { GITHUB_PERSONAL_ACCESS_TOKEN = "${GITHUB_TOKEN}" }
+
+[mcp_servers.git]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-git", "I:\\grokbuild"]
+enabled = true
+
+[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "I:\\grokbuild\\EmbodI\\ReflexKernel\\data"]
+enabled = true

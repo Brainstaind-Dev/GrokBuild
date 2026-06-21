@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments / secrets
+.env
+.env.*
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ReflexKernel runtime artifacts
+**/logs/
+**/data/learned*/
+**/captures/
+**/recordings/
+*.log
+reflexkernel_state.json
+
+# Binaries / large local tools
+**/cloudflared*.exe
+
+# Grok local (keep project config, ignore session artifacts)
+.grok/sessions/

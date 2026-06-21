@@ -1,0 +1,58 @@
+How to Run
+
+cd I:\GrokBuild\EmbodI\ReflexKernel
+
+# Create + activate venv (recommended)
+python -m venv .venv
+.\.venv\Scripts\activate
+
+# Core (always works in sim)
+pip install -e .
+
+# Recommended for the visual demo + nice teaching experience
+pip install -e .[viz]
+
+# Interactive demo (keyboard stimuli + avatar)
+python -m scripts.demo
+# or after install: reflexkernel-demo
+
+# Or use programmatically (see scripts/teacher_stub.py + README)
+python -c "
+from reflexkernel import ReflexKernel
+from reflexkernel.config import load_config
+from reflexkernel.interface.python_api import PythonAPI
+
+k = ReflexKernel.from_config_path('configs/sim_only.yaml')
+api = PythonAPI(k)
+api.start()
+api.inject_thought({'emotion': 'startle', 'intensity': 0.9, 'valence': -0.7})
+api.step(5)
+api.reward(0.7, 'good defensive reaction')
+api.begin_demo('my_new_reaction')
+# ... stimuli arrive via sim or real sensors ...
+api.end_demo({'success': True})
+print(api.get_state())
+api.stop()
+"
+
+Teaching the kernel from a "higher intelligence" (the main integration point):
+• Use inject_thought_seed / {"cmd": "thought_seed", ...} (JSON seeds are the fast path).
+• send_reward / {"cmd": "reward", ...}.
+• begin_demonstration / end_demonstration for imitation.
+• Subscribe to get_state() + traces via stdio/WS/PythonAPI.
+• See scripts/teacher_stub.py and the stdio protocol in interface/stdio_adapter.py.
+
+Tests: pytest (basic but real coverage of types, sim perception, fusion, reflexes, learner).
+
+Next Steps / Extensibility (as documented in PLAN.md)
+• Real sensors: drop in new Sensor subclasses (register in config or manually).
+• Hardware: implement drivers behind the same Sensor / actuation interfaces (serial/GPIO/etc.).
+• Better learning: swap the exemplar KNN for a tiny numpy policy or sklearn inside learner/.
+• LLM integration: the stdio/WS/PythonAPI surface + tool-calling is deliberately clean for agent loops.
+• Run the full demo with pygame installed to see the avatar react live (eyes, mouth, shoulders, overlays).
+
+The project is deliberately minimal-core + modular so you can evolve it toward real embodiment without rewriting the nervous-system logic.
+
+Everything is in I:\GrokBuild\EmbodI\ReflexKernel. Start with README.md + PLAN.md, then python -m scripts.demo.
+
+Let me know if you want expansions (more primitives, real MediaPipe tuning, a full LLM teacher example script, ROS2 driver skeleton, etc.).

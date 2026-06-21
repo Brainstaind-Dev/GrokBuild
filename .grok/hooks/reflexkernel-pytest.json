@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "search_replace|write|Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"I:\\grokbuild\\.grok\\hooks\\scripts\\reflexkernel-pytest.ps1\"",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

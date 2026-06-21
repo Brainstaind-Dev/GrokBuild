@@ -1,0 +1,112 @@
+# ReflexKernel Default Configuration
+# This is a balanced profile with simulation primary + all optional features enabled when deps present.
+
+kernel:
+  tick_rate_hz: 30
+  log_level: "INFO"
+  seed: 42
+
+perception:
+  enabled_sensors:
+    - simulation
+    # - vision
+    # - audio
+  simulation:
+    interactive: true
+    auto_events: true
+    auto_event_interval_s: 4.0
+  vision:
+    enabled: false
+    device: 0
+    use_mediapipe: true
+    face: true
+    hands: false
+    pose: false
+    motion_detection: true
+  audio:
+    enabled: false
+    sample_rate: 16000
+    vad_enabled: true
+    energy_threshold: 0.02
+
+bridge:
+  # Fast path always available
+  structured_seeds: true
+  keyword_rules: true
+  # Optional heavy models (graceful fallback)
+  use_sentence_transformers: true
+  embedding_model: "all-MiniLM-L6-v2"
+  use_sentiment: true
+  sentiment_model: "cardiffnlp/twitter-roberta-base-sentiment-latest"  # optional, falls back to simple
+
+  fusion:
+    arousal_decay_per_tick: 0.03
+    valence_decay_per_tick: 0.01
+    stimulus_weight: 0.65
+    thought_weight: 0.55
+    max_salient_stimuli: 5
+
+reflex:
+  enabled_primitives:
+    - flinch
+    - blink
+    - tension
+    - orient
+    - freeze
+    - autonomic
+  base_sensitivity: 0.8
+  refractory_period_ms:
+    flinch: 180
+    blink: 80
+    default: 120
+  # Global modulation from affective context
+  arousal_amplifies: true
+  valence_dampens_negative: true
+
+learner:
+  enabled: true
+  store_path: "data/learned"
+  persistence_format: "jsonl"   # jsonl + snapshot
+  imitation:
+    enabled: true
+    similarity_threshold: 0.72
+    max_exemplars_per_behavior: 200
+  reinforcement:
+    enabled: true
+    learning_rate: 0.08
+    reward_window: 12
+  # Future: allow dynamic registration of Python callables as reflexes
+  allow_dynamic_registration: false
+
+output:
+  visualization: "pygame"   # pygame | text | none
+  log_structured: true
+  log_dir: "logs"
+  avatar:
+    width: 640
+    height: 480
+    fps: 30
+    show_stimuli_overlay: true
+    show_reflex_traces: true
+
+interface:
+  mode: "stdio"             # stdio | websocket | none | both
+  stdio:
+    enabled: true
+    pretty: false           # set true for human debugging
+  websocket:
+    enabled: false
+    host: "127.0.0.1"
+    port: 8765
+    path: "/reflex"
+  server:
+    enabled: false
+    host: "127.0.0.1"
+    port: 8000
+    api_key: "reflexkernel-dev"
+    cors_origins: ["*"]
+    enable_rate_limit: true
+    rate_limit_per_minute: 120
+    ws_path: "/ws/events"
+  python_api:
+    enabled: true

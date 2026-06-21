@@ -1,0 +1,69 @@
+site_name: The Living Archive
+site_description: Travelers — Tears of the Stars | A living record of the world after the First Fracture
+site_url: https://www.brainstainddev.com/travelers
+
+theme:
+  name: material
+  palette:
+    # Dark cosmic theme tuned to the Travelers aesthetic
+    scheme: slate
+    primary: custom
+    accent: pink
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs
+    - content.code.copy
+  icon:
+    logo: material/book-open-variant
+
+extra_css:
+  - stylesheets/travelers.css
+
+nav:
+  - Home: index.md
+  - The First Fracture: foundation/the-first-fracture.md
+  - The 8 Core Myths: foundation/the-8-myths.md
+
+  - The Voices:
+      - Voices Index: voices/index.md
+      - Teller (Klos): voices/teller.md
+      - Luh the Enforcer: voices/luhtheEnforcer.md
+      - Agead Drem: voices/ageadDrem.md
+      # More Voices will appear here as we add them
+
+  - Species & Manifestations:
+      - Species Index: species/index.md
+      - Malformed: species/malformed.md
+
+  - World Systems:
+      - Systems Overview: world-systems/index.md
+      - Voice Attunement: world-systems/voice-attunement.md
+
+  - Locations: locations/index.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - def_list
+  - footnotes
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/solid/globe
+      link: https://www.brainstainddev.com/travelers
+      name: Return to the Surface
+  generator: false
+
+copyright: "The world is still singing. This archive is alive."

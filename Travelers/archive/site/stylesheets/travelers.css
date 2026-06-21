@@ -1,0 +1,64 @@
+/* Travelers Living Archive - Custom Theme */
+:root {
+  --md-primary-fg-color: #8B0000;        /* Deep crimson */
+  --md-accent-fg-color: #C71585;         /* Medium violet red / hot pink */
+}
+
+/* Stronger dark cosmic background */
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #0D0D10;
+  --md-default-fg-color: #E8E4D9;
+  --md-default-fg-color--light: #B8B4A9;
+  --md-default-fg-color--lighter: #88847A;
+  
+  --md-code-bg-color: #16161A;
+  --md-code-fg-color: #E8E4D9;
+}
+
+/* Atmospheric touches */
+.md-header {
+  background-color: rgba(13, 13, 16, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+.md-nav__title {
+  font-weight: 600;
+  color: #C71585;
+}
+
+.md-typeset h1 {
+  font-weight: 700;
+  color: #E8E4D9;
+}
+
+.md-typeset h2 {
+  color: #C71585;
+  border-bottom: 1px solid rgba(199, 21, 133, 0.2);
+}
+
+/* Quote styling for lore flavor */
+.md-typeset blockquote {
+  border-left-color: #8B0000;
+  background-color: rgba(139, 0, 0, 0.08);
+}
+
+/* Voice cards / status badges feel */
+.md-typeset table th {
+  background-color: #1A1A20;
+  color: #C71585;
+}
+
+/* Make links feel more "in-world" */
+.md-typeset a {
+  color: #C71585;
+}
+
+.md-typeset a:hover {
+  color: #E8E4D9;
+  text-decoration: underline;
+}
+
+/* Footer */
+.md-footer {
+  background-color: #0A0A0C;
+}
