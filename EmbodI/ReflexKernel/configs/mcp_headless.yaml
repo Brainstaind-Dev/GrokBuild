@@ -1,0 +1,64 @@
+# ReflexKernel — headless profile for MCP / agent tooling (no pygame window)
+
+kernel:
+  tick_rate_hz: 20
+  log_level: "INFO"
+  seed: 1337
+
+perception:
+  enabled_sensors:
+    - simulation
+  simulation:
+    interactive: false
+    auto_events: false
+    auto_event_interval_s: 99.0
+
+bridge:
+  structured_seeds: true
+  keyword_rules: true
+  use_sentence_transformers: false
+  use_sentiment: false
+  fusion:
+    arousal_decay_per_tick: 0.04
+    valence_decay_per_tick: 0.015
+    stimulus_weight: 0.7
+    thought_weight: 0.5
+
+reflex:
+  enabled_primitives:
+    - flinch
+    - blink
+    - tension
+    - orient
+    - freeze
+    - autonomic
+  base_sensitivity: 0.85
+
+learner:
+  enabled: true
+  store_path: "data/learned_sim"
+  imitation:
+    enabled: true
+    similarity_threshold: 0.65
+  reinforcement:
+    enabled: true
+    learning_rate: 0.12
+
+output:
+  visualization: "none"
+  log_structured: true
+  log_dir: "logs"
+  avatar:
+    width: 720
+    height: 520
+    show_stimuli_overlay: false
+    show_reflex_traces: false
+
+interface:
+  mode: "none"
+  stdio:
+    enabled: false
+  websocket:
+    enabled: false
+  server:
+    enabled: false

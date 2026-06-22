@@ -25,3 +25,10 @@ command = "mcp-server-filesystem"
 args = ["I:\\grokbuild\\EmbodI\\ReflexKernel\\data"]
 enabled = true
 startup_timeout_sec = 30
+
+[mcp_servers.reflexkernel]
+command = "I:\\grokbuild\\EmbodI\\ReflexKernel\\.venv\\Scripts\\python.exe"
+args = ["-m", "reflexkernel.mcp_server"]
+enabled = true
+startup_timeout_sec = 20
+env = { REFLEXKERNEL_CONFIG = "I:\\grokbuild\\EmbodI\\ReflexKernel\\configs\\mcp_headless.yaml" }

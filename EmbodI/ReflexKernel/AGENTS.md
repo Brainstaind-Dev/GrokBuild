@@ -47,6 +47,16 @@ Stdio / WebSocket messages use JSON-lines. Common types:
 | `test_reflex_core.py` | Reflex primitives and state machines |
 | `test_learner.py` | Imitation + RL persistence |
 
+## MCP server (agent tooling)
+
+Headless profile: `configs/mcp_headless.yaml`. Run locally:
+
+```powershell
+.\.venv\Scripts\python.exe -m reflexkernel.mcp_server
+```
+
+Grok project MCP: `reflexkernel` in `I:\grokbuild\.grok\config.toml` (8 tools: inject_stimulus, read_affective_state, run_demo_episode, query_logs, etc.).
+
 ## Key docs
 
 - `README.md` — quick start
