@@ -35,3 +35,4 @@ reflexkernel_state.json
 
 # Grok local (keep project config, ignore session artifacts)
 .grok/sessions/
+terminals/

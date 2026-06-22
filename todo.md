@@ -38,26 +38,165 @@ git commit -m "Initial commit: ReflexKernel + Grok project config"
 
 ## 2. Trust project hooks (required for auto-pytest)
 
-Project hooks live at `I:\grokbuild\.grok\hooks\` but **do not run until you trust the project**.
+### Why this step exists
 
-**File:** `C:\Users\Agentdud\.grok\trusted-hook-projects`
+Your auto-pytest hook lives **inside the project** at:
 
-The agent created this file with `I:\grokbuild` already listed. If hooks still do not fire, confirm the path matches your workspace exactly, then restart Grok.
+```
+I:\grokbuild\.grok\hooks\reflexkernel-pytest.json
+I:\grokbuild\.grok\hooks\scripts\reflexkernel-pytest.ps1
+```
 
-**Verify:** Press `Ctrl+L` → Hooks tab → confirm `reflexkernel-pytest.json` is loaded.
+That hook runs a PowerShell script on your machine whenever Grok edits a ReflexKernel `.py` file. Because a malicious repo could ship hooks that run arbitrary code, Grok **silently skips all project-scoped hooks** until you explicitly trust the workspace.
+
+| Hook location | Trust required? |
+|---------------|-----------------|
+| `C:\Users\Agentdud\.grok\hooks\` (global) | No — always runs |
+| `I:\grokbuild\.grok\hooks\` (project) | **Yes** — skipped until trusted |
+
+**Until trusted, nothing breaks — but the hook also does nothing.** You will not get auto-pytest after edits.
+
+### What the hook does (once trusted)
+
+On every successful `search_replace` or `write` to a file under `\ReflexKernel\` ending in `.py`:
+
+1. Grok fires a `PostToolUse` event
+2. `reflexkernel-pytest.ps1` runs (up to 120s timeout)
+3. The script runs `pytest tests/ -x -q` in `EmbodI\ReflexKernel`
+4. Last ~10 lines of output appear in Grok scrollback as a hook annotation
+
+It is **informational only** — a failing test does not block the edit.
+
+### How to trust the project
+
+**Method A — Edit the trust file (recommended in TUI)**
+
+1. Open (or create): `C:\Users\Agentdud\.grok\trusted-hook-projects`
+2. Add **one path per line** — the workspace root, not the `.grok\hooks` subfolder:
+
+   ```
+   I:\grokbuild
+   ```
+
+   If that alone does not work, also add the forward-slash variants Grok may canonicalize to:
+
+   ```
+   I:/grokbuild
+   I:/grokbuild/
+   ```
+
+3. Save the file
+4. **Start a new Grok session** in `I:\grokbuild` (trust is read at session start)
+
+**Method B — Shell slash command (if using non-TUI agent mode)**
+
+```
+/hooks-trust
+```
+
+This writes the current workspace to `trusted-hook-projects` automatically. Note: in the TUI pager, `/hooks-trust` may not appear in the slash menu — use Method A instead.
+
+**Method C — Move hook to global scope (bypasses trust, less portable)**
+
+Copy the hook files to `C:\Users\Agentdud\.grok\hooks\`. Global hooks always run but won't travel with the repo if you clone elsewhere.
+
+### How to verify it worked
+
+**Quick check (run in terminal):**
+
+```powershell
+cd I:\grokbuild
+grok inspect
+```
+
+Look for these two lines:
+
+```
+Project trusted: yes        ← must say yes, not no
+Hooks (1)                   ← should list reflexkernel-pytest under Project
+```
+
+If you still see `Project trusted: no` and `Hooks (0)`, the path in `trusted-hook-projects` does not match what Grok expects — try the forward-slash variants above and restart.
+
+**In the Grok TUI:**
+
+1. Run `/hooks` (or `Ctrl+L` → Hooks tab)
+2. Press `r` to reload hooks from disk
+3. Under the **Project** group, you should see `reflexkernel-pytest.json`
+4. Confirm it shows **enabled** (not `[disabled]` — press `Space` to toggle if needed)
+
+**Live test:**
+
+1. Ask Grok to make a trivial edit to any file under `EmbodI\ReflexKernel\src\` (e.g. add a blank line)
+2. Watch scrollback for `[reflexkernel-pytest] running pytest after edit: ...`
+3. Pytest output lines should appear shortly after the edit
+
+### Common problems
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `grok inspect` → `Project trusted: no` | Path mismatch or session not restarted | Add `I:/grokbuild/` to trust file; restart Grok |
+| `Hooks (0)` in inspect | Project untrusted (hooks discovered but not loaded) | Same as above |
+| Hook listed but never fires | Matcher only triggers on `search_replace`/`write`, not `read_file` | Edit a `.py` file, not just read one |
+| `[reflexkernel-pytest] skipped: .venv not found` | Virtualenv missing | Complete step 7 (venv setup) |
+| Hook fires on wrong files | Only `*\ReflexKernel\*.py` paths match | Expected behavior — other files are ignored |
+| Want to revoke trust later | — | Remove the path from `trusted-hook-projects`, or run `/hooks-untrust` in shell mode |
+
+### Security note
+
+Only trust projects you wrote or fully reviewed. The hook script is plain text at `.grok\hooks\scripts\reflexkernel-pytest.ps1` — read it before trusting if the repo came from an external source.
 
 ---
 
 ## 3. MCP servers — verify and enable
 
-**Config already written at:** `I:\grokbuild\.grok\config.toml`
+**Config at:** `I:\grokbuild\.grok\config.toml`
 
 | Server | Status | Action needed |
 |--------|--------|---------------|
 | `puppeteer` | Enabled | Run `grok mcp doctor puppeteer` — first run downloads Chromium via npx |
-| `git` | Enabled | Run `grok mcp doctor git` |
+| `git` | **Fixed** — uses Python, not npm | See [Git MCP fix](#git-mcp-handshake-fix) below |
 | `filesystem` | Enabled | Scoped to `EmbodI\ReflexKernel\data` — run `grok mcp doctor filesystem` |
 | `github` | **Disabled** | Enable after setting token (step 4) |
+
+### Git MCP handshake fix
+
+**Symptom:** `grok mcp doctor git` reports `handshake failed (connection closed: initialize response)`.
+
+**Root cause:** Grok's docs list `@modelcontextprotocol/server-git` as an npm package, but **that package does not exist**. The official Git MCP server is **Python-based** (`mcp-server-git` on PyPI). The stderr log showed:
+
+```
+npm error 404 Not Found - GET ... @modelcontextprotocol/server-git
+```
+
+**Fix applied in** `I:\grokbuild\.grok\config.toml`:
+
+```toml
+# WRONG (npm package doesn't exist):
+# command = "npx"
+# args = ["-y", "@modelcontextprotocol/server-git", "I:\\grokbuild"]
+
+# CORRECT (Python):
+[mcp_servers.git]
+command = "python"
+args = ["-m", "mcp_server_git", "--repository", "I:\\grokbuild"]
+enabled = true
+```
+
+**Prerequisite** (installed globally via pip):
+
+```powershell
+pip install mcp-server-git
+```
+
+**Verify:**
+
+```powershell
+grok mcp doctor git
+# Expected: handshake OK, 12 tools discovered
+```
+
+Restart Grok session and press `r` in `/mcps` to reload.
 
 **Commands:**
 
