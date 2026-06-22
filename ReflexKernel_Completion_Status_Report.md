@@ -5,8 +5,9 @@
 **Location (code)**: `I:\GrokBuild\EmbodI\ReflexKernel`  
 **Document Location**: `I:\GrokBuild\ReflexKernel_Completion_Status_Report.md`  
 **Date of Original Report**: June 2026 (initial ReflexKernel + remote interface)  
-**Latest Update**: Mid-June 2026 (Abstraction Layer + Embodied Autonomic System foundation)  
-**Status**: Core ReflexKernel + remote server complete and verified. New Feature Abstraction Layer operational in simulation; full system evolving per Embodied_Autonomic_System.md spec. "Rocket fuel" development phase active.
+**Latest Update**: 21 June 2026 (Grok Build agent tooling + ReflexKernel MCP server + CI)  
+**Repository**: [https://github.com/Brainstaind-Dev/GrokBuild](https://github.com/Brainstaind-Dev/GrokBuild)  
+**Status**: Core ReflexKernel + remote server complete and verified. Abstraction Layer operational in simulation. **Grok Build development infrastructure fully wired** — MCP servers, custom ReflexKernel MCP, GitHub Actions CI, project rules, and auto-pytest hooks. Active development phase.
 
 ---
 
@@ -19,7 +20,7 @@ It was built exactly to the layered architecture requested:
 **Perception → Thought/Emotion Bridge → Reflex Core → Learner Module → Output/Actuation → Interface Layer**
 
 **Current Status (as of latest verification pass)**:  
-**Core system is fully functional and ready for integration.** All major paths have been exercised successfully in a clean environment after antivirus exceptions were added. 10/10 tests pass. Real reflexes fire, learning works end-to-end with disk persistence, visualization runs, and the teaching interface for higher intelligences is solid.
+**Core system is fully functional and ready for integration.** All major paths have been exercised successfully. **15/15 tests pass** (10 core + 5 MCP server). Real reflexes fire, learning works end-to-end with disk persistence, visualization runs, and the teaching interface for higher intelligences is solid. **Agent integration is production-ready via the custom ReflexKernel MCP server** (8 tools) and GitHub Actions CI on every push.
 
 This is a **simulation-primary** implementation with clean extension points for real hardware (webcam/MediaPipe, microphones, Raspberry Pi, Arduino, etc.).
 
@@ -66,7 +67,7 @@ Perception Layer  (SimulationSensor primary + stubs for Vision + Audio)
 | **Reflex Core**          | Complete                      | `ReflexCore` + `ReflexStateMachine` (refractory + sustained), 6 primitives: `flinch`, `blink`, `tension`, `orient`, `freeze`, `autonomic` | **Verified live**: Thought seed + sudden_loud stimulus triggers flinch + blink + tension + orient in one tick. Affective modulation active. |
 | **Learner Module**       | Complete                      | `Learner` + `LearnerStore` (JSONL demos, rewards, learned_params.json). Imitation (exemplar recording + similarity-based cloning), simple RL bias updates | **End-to-end verified**: Record demos, ingest behaviors, send rewards → biases update + persist to disk. Can clone actions on similar future stimuli. |
 | **Output / Actuation**   | Complete                      | `ActuationHub` + `VirtualBody` (physiology + expressions), `StructuredLogger` (JSONL), `PygameVisualizer` (expressive 2D avatar with tension, eyes, mouth, overlays) | Pygame avatar opens and reacts live. Full structured logs written on every tick. Virtual body state queryable. |
-| **Interface Layer**      | Complete                      | `PythonAPI` (direct embedding), `command()` generic JSON surface, `StdioAdapter` (JSON-lines for piping/LLM wrappers), WebSocket/FastAPI skeleton | All teaching primitives (seed, reward, begin/end_demo, get_state, inject_stimulus) work via both Python and command interface. |
+| **Interface Layer**      | Complete                      | `PythonAPI` (direct embedding), `command()` generic JSON surface, `StdioAdapter` (JSON-lines for piping/LLM wrappers), WebSocket/FastAPI skeleton, **`mcp_server.py`** (MCP stdio tools for Grok/agents) | All teaching primitives work via Python, command interface, and MCP. Custom MCP exposes 8 agent-facing tools (see below). |
 
 ---
 
@@ -90,7 +91,7 @@ A comprehensive verification was performed on a **fresh venv** after the user ad
 
 - **Visualization**: Pygame avatar window successfully opens, renders head/eyes/mouth/shoulders/posture, and updates in real time with stimuli and reflex traces.
 
-- **Test Suite**: 10/10 tests passing (after one small test fix for `RewardSignal` usage).
+- **Test Suite**: **15/15 tests passing** (10 core + 5 MCP server tests in `tests/test_mcp_server.py`).
 
 - **Graceful degradation**: Kernel runs cleanly even when `vision` and `audio` are explicitly requested in config but the packages (opencv, mediapipe, sounddevice) are not installed. Clear warnings are logged.
 
@@ -105,10 +106,14 @@ A comprehensive verification was performed on a **fresh venv** after the user ad
 ```powershell
 cd I:\GrokBuild\EmbodI\ReflexKernel
 
-# One-time setup (fresh recommended after AV exception)
+# One-time setup (venv rebuilt June 2026 on Python 3.14)
 python -m venv .venv
 .\.venv\Scripts\activate
-pip install -e .[viz]          # includes pygame for the avatar
+pip install -e ".[dev,viz]"     # dev tools + pygame avatar
+# Optional for MCP server: pip install -e ".[mcp]"
+
+# Run tests
+python -m pytest tests/ -v
 
 # Run the interactive demo
 python -m scripts.demo
@@ -119,7 +124,64 @@ python -m scripts.demo
 - Watch the avatar flinch, tense, orient, blink, etc.
 - Use teaching keys: `+` (positive reward), `-` (negative), `d` (begin demo), `e` (end demo).
 
-See `configs/sim_only.yaml` for the pure-simulation profile (recommended for development).
+See `configs/sim_only.yaml` for the pure-simulation profile (recommended for development).  
+See `configs/mcp_headless.yaml` for headless agent/MCP use (no pygame window).
+
+---
+
+## Grok Build Development Infrastructure (June 2026)
+
+The parent workspace `I:\GrokBuild` is configured for agent-driven iteration:
+
+| Component | Location | Status |
+|-----------|----------|--------|
+| **Git repository** | [Brainstaind-Dev/GrokBuild](https://github.com/Brainstaind-Dev/GrokBuild) | Active, `master` branch |
+| **GitHub Actions CI** | `.github/workflows/test.yml` | Green — pytest on every push |
+| **Project rules** | `AGENTS.md`, `EmbodI/ReflexKernel/AGENTS.md` | Loaded by Grok automatically |
+| **Domain skill** | `.grok/skills/reflexkernel-dev/` | `/reflexkernel-dev` workflow |
+| **Auto-pytest hook** | `.grok/hooks/reflexkernel-pytest.json` | Runs pytest after `.py` edits |
+| **Cross-session memory** | `~/.grok/config.toml` `[memory]` | Enabled |
+
+### MCP Servers (Grok project config: `.grok/config.toml`)
+
+| Server | Transport | Tools | Purpose |
+|--------|-----------|-------|---------|
+| `reflexkernel` | Python stdio | 8 | **Custom** — drive the embodied kernel directly |
+| `git` | Python (`mcp-server-git`) | 12 | Local repo operations |
+| `github` | npx | 26 | Issues, PRs, CI status |
+| `puppeteer` | npx | 7 | Browser/visual QA |
+| `filesystem` | global npm | 14 | Scoped to `EmbodI/ReflexKernel/data` |
+
+All verified healthy via `grok mcp doctor` (June 2026).
+
+---
+
+## ReflexKernel MCP Server (New — June 2026)
+
+**Module**: `src/reflexkernel/mcp_server.py`  
+**Config profile**: `configs/mcp_headless.yaml` (simulation-only, no pygame, structured logging on)  
+**Install**: `pip install -e ".[mcp]"`  
+**Run locally**: `python -m reflexkernel.mcp_server`  
+**Grok invocation**: MCP server `reflexkernel` (auto-loaded from project config)
+
+### Exposed Tools
+
+| Tool | Description |
+|------|-------------|
+| `kernel_status` | Session tick, running state, config path, context summary |
+| `inject_stimulus` | Inject simulated stimulus (kind, intensity) and advance N ticks |
+| `read_affective_state` | Full kernel state snapshot (context, actions, traces) |
+| `get_reflex_traces` | Advance ticks and return reflex trace records |
+| `inject_thought_seed` | Affective priming from higher intelligence |
+| `run_demo_episode` | Named scenarios: `sudden_sound`, `friendly_greet`, `threat_approach`, `calm_recovery` |
+| `query_logs` | Search recent structured JSONL logs |
+| `send_reward` | RL reward signal for recent behavior |
+
+The kernel session **persists across tool calls** within a single Grok session — state carries forward until Grok is restarted.
+
+### Example agent prompt
+
+> *"Use the reflexkernel MCP to run the `sudden_sound` demo episode, then read the affective state and tell me which reflexes fired."*
 
 ---
 
@@ -173,9 +235,10 @@ The `StdioAdapter` provides a clean JSON-lines REPL for LLM wrappers.
 
 ## Configuration
 
-Two main profiles are provided:
+Three main profiles are provided:
 
 - `configs/sim_only.yaml` — Pure simulation, no heavy models, interactive keyboard, pygame viz (recommended for most work).
+- `configs/mcp_headless.yaml` — Headless simulation for MCP/agent tooling (no pygame, no auto-events, structured logs on).
 - `configs/default.yaml` — More complete profile with optional ML/vision paths enabled when dependencies are present.
 
 All settings (tick rate, enabled primitives, fusion weights, learner thresholds, visualization mode, interface mode, etc.) are overridable via YAML + environment variables (`REFLEXKERNEL_*`).
@@ -193,6 +256,7 @@ All settings (tick rate, enabled primitives, fusion weights, learner thresholds,
 - `audio` → sounddevice
 - `ml` → sentence-transformers + scikit-learn
 - `server` → fastapi + uvicorn + websockets
+- `mcp` → mcp SDK (ReflexKernel MCP server for Grok/agents)
 - `dev` → pytest, ruff, black, mypy
 
 The system never crashes on missing optionals — features simply disable with logged warnings.
@@ -225,28 +289,34 @@ These are **intentional scope choices** for a solid v0.1 foundation.
 
 ## Recommended Next Steps
 
-1. Run the interactive demo and experiment with teaching loops.
-2. Build a small higher-intelligence wrapper (Python agent or LLM tool-calling loop) that subscribes to state and sends seeds/rewards/demos.
-3. Extend with real sensors when ready (drop-in `Sensor` subclasses).
-4. Evolve the learner (add tiny policy networks, better retrieval, multi-behavior libraries).
+1. ~~Build a higher-intelligence wrapper~~ — **Done** via ReflexKernel MCP server (Grok integration live).
+2. Use `/reflexkernel-dev` and the `reflexkernel` MCP tools for layer-aware iteration.
+3. Extend remote server (Saddle) to surface `BodyStateSummary` and abstraction-layer sensations.
+4. Extend with real sensors when hardware arrives (drop-in `Sensor` subclasses + `abstraction/hardware.py`).
+5. Evolve the learner (tiny policy networks, better retrieval, multi-behavior libraries).
+6. Optional: add Linear/Sentry MCP for issue tracking; build live-server MCP mode (FastAPI/WebSocket must be running).
 
 ---
 
 ## Artifacts & Deliverables
 
 - Full source under `src/reflexkernel/` (modern Python, type hints, docstrings)
-- Two ready-to-use configs
+- Three ready-to-use configs (`sim_only`, `mcp_headless`, `default`)
 - Interactive demo + teacher stub example
-- 10 passing unit tests
-- Detailed internal docs: `PLAN.md`, `README.md`, `VERIFICATION.md`
+- **ReflexKernel MCP server** (`mcp_server.py`) with 8 agent tools
+- **15 passing unit tests** (core + MCP)
+- **GitHub Actions CI** (`.github/workflows/test.yml`)
+- Grok project config: `.grok/config.toml`, hooks, skills, `AGENTS.md`
+- Detailed internal docs: `PLAN.md`, `README.md`, `VERIFICATION.md`, `docs/EMBODIED_AUTONOMIC_SYSTEM_IMPLEMENTATION.md`
+- Setup checklist: `todo.md` (manual steps reference)
 - Persistent learner data examples in `data/`
 - Structured logs in `logs/`
 
 ---
 
-**ReflexKernel (v0.1 core) is complete for its stated goals and is currently operable for simulation-based embodiment research and higher-AI teaching experiments.**
+**ReflexKernel (v0.2.0 Alpha) is complete for its stated goals and is operable for simulation-based embodiment research, higher-AI teaching experiments, and agent-driven development via MCP.**
 
-*Document generated for Grok Web / sharing. All claims backed by direct execution and test runs in June 2026.*
+*Document maintained for Grok Web / sharing. Claims backed by direct execution, `grok mcp doctor`, and test runs in June 2026.*
 
 ---
 
@@ -321,6 +391,37 @@ Hardware Perception Layer (or Virtual Sensor Layer)
 The original ReflexKernel + remote interface is solid and verified. The Embodied Autonomic System foundation (Abstraction Layer) is now operational in simulation and represents the critical next architectural layer. We are in active "rocket fuel" development — rapid iteration on the spec while preserving everything that already works.
 
 This document will continue to be updated with date/time stamps as the system matures.
+
+---
+
+## Addendum: Grok Build Agent Tooling Milestone (21 June 2026)
+
+**Focus**: End-to-end agent development infrastructure for the GrokBuild workspace.
+
+### Delivered
+
+- **Git + GitHub**: Local repo initialized; remote at `Brainstaind-Dev/GrokBuild`; CI workflow green on all pushes.
+- **Grok project config** (`.grok/`): MCP servers, pytest hook, `reflexkernel-dev` skill, trusted project hooks.
+- **ReflexKernel MCP server**: 8 tools, headless config, 5 dedicated tests, `grok mcp doctor` verified.
+- **Environment fixes**: Venv rebuilt on Python 3.14.6; Git MCP corrected to Python `mcp-server-git`; filesystem MCP via global npm install; GitHub MCP with rotated PAT.
+- **Test count**: 10 → **15** (all passing locally and in GitHub Actions).
+
+### Verified (21 June 2026)
+
+```
+grok mcp doctor          → 5/5 servers healthy (reflexkernel, git, github, puppeteer, filesystem)
+pytest tests/ -v       → 15 passed
+GitHub Actions         → ReflexKernel Tests — green
+grok inspect           → Project trusted, Hooks (1), reflexkernel-dev skill loaded
+```
+
+### Next Priority (post-tooling)
+
+1. Exercise ReflexKernel MCP in live Grok sessions against abstraction-layer scenarios.
+2. Extend Saddle/remote server to expose `BodyStateSummary` and coherent sensations.
+3. Hardware bring-up when components arrive.
+
+**Overall Verdict**: ReflexKernel is no longer only a library — it is an **agent-addressable embodied system** with full Grok Build tooling around it.
 
 ---
 
