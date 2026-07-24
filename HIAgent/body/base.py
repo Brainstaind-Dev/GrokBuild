@@ -1,0 +1,39 @@
+"""Body backend protocol — unified surface for embedded + remote Saddle."""
+
+from __future__ import annotations
+
+from typing import Any, Dict, Optional, Protocol, runtime_checkable
+
+
+@runtime_checkable
+class BodyBackend(Protocol):
+    """What the HI agent needs from the body (ReflexKernel / Saddle)."""
+
+    name: str
+
+    def start(self) -> None: ...
+    def stop(self) -> None: ...
+    def feel(self, force: bool = False) -> Dict[str, Any]: ...
+    def body_snapshot(self) -> Dict[str, Any]: ...
+    def inject_thought(
+        self,
+        emotion: str = "neutral",
+        intensity: float = 0.5,
+        valence: float = 0.0,
+        arousal: float = 0.5,
+        text: str = "",
+    ) -> Dict[str, Any]: ...
+    def send_reward(
+        self, value: float, reason: str = "", window_steps: int = 6
+    ) -> Dict[str, Any]: ...
+    def inject_stimulus(
+        self,
+        kind: str = "sudden_sound",
+        intensity: float = 0.7,
+        modality: str = "sim",
+    ) -> Dict[str, Any]: ...
+    def step(self, n: int = 1) -> Dict[str, Any]: ...
+    def begin_demo(self, name: str) -> Dict[str, Any]: ...
+    def end_demo(self, outcome: Optional[Dict[str, Any]] = None) -> Dict[str, Any]: ...
+    def status(self) -> Dict[str, Any]: ...
+    def recall(self, max_age_minutes: int = 20) -> Dict[str, Any]: ...

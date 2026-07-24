@@ -2,21 +2,33 @@
 
 **Purpose**: Feed live Grok Web conversation into your local Embodied Autonomic System (ReflexKernel + Saddle) so chat generates real "felt" experiences. This forms a **bidirectional loop** (senses/virtual → rich sensations via Saddle → HI; HI injects stimuli via Saddle → produces sensations, affects kernel + viz). The Saddle surfaces **rich coherent sensations** (natural descriptions + structured fields like arousal_modulated_richness, zone_character, temporal/texture qualities, category) with caps and NORMAL default to avoid overload. 
 
-**Note on chrome tab loop**: Current Tampermonkey path is one-way for sensations ( #states → body). Sensations are readable via pull ( /api/v1/sensations or MCP). Automatic push/feedback into the chat tab is pending (user exploring xAI API).
+**Note on chrome tab loop**: Current Tampermonkey path is one-way for sensations ( #states → body). Sensations are readable via pull ( /api/v1/sensations or MCP). For full API-side bidirectional ride, use **Path C (HIAgent)**.
 
 **Repository**: [https://github.com/Brainstaind-Dev/GrokBuild](https://github.com/Brainstaind-Dev/GrokBuild)  
-**Last Updated**: 23 June 2026 (richer coherent sensations now prominently exposed in Saddle/MCP with caps and detail controls)
+**Last Updated**: 24 July 2026 (Path C: xAI API HIAgent loop)
 
 ---
 
-## Two Ways to Interact
+## Three Ways to Interact
 
 | Path | Where you chat | How states reach the body | Best for |
 |------|----------------|---------------------------|----------|
 | **A — Grok Web** (this doc's primary flow) | Browser at grok.com / x.com | Tampermonkey userscript → local bridge → remote server | Live chat while browsing; `#state` tags in conversation |
-| **B — Grok Build** | Desktop Grok app in `I:\GrokBuild` | ReflexKernel MCP tools — now includes prominent richer sensations via `kernel_status`, `read_affective_state`, `get_coherent_sensations` | Development, testing, agent-driven embodied loops |
+| **B — Grok Build** | Desktop Grok app in `I:\GrokBuild` | ReflexKernel MCP tools — sensations + `cortex_*` tools | Development, testing, agent-driven embodied loops |
+| **C — HIAgent (xAI API)** | Local CLI / pulse loop | Grok via `XAI_API_KEY` + tools → embedded RK or remote Saddle | Continuous “ride the Saddle”; production-style HI process |
 
-Both paths use the same ReflexKernel stack. Path A is self-contained in the browser; Path B is optional and does not require Tampermonkey.
+All paths use the same ReflexKernel stack. Path C is documented in **`HIAgent/README.md`**.
+
+### Path C quick start
+
+```powershell
+# User env XAI_API_KEY must already be set (secret key, not key ID)
+cd I:\GrokBuild
+.\HIAgent\scripts\standup.ps1 -Mode EmbeddedAgent -StartAgent interactive
+```
+
+Stand-up script order (FullRemote): key check → Saddle server → conversation bridge → HIAgent.  
+HI can **`pause_feed` / `resume_feed`**; after ~30s paused, the agent asks if ready to resume.
 
 ---
 

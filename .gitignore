@@ -25,10 +25,12 @@ Thumbs.db
 # ReflexKernel runtime artifacts
 **/logs/
 **/data/learned*/
+**/data/hi_sessions/
 **/captures/
 **/recordings/
 *.log
 reflexkernel_state.json
+HIAgent/logs/
 
 # Binaries / large local tools
 **/cloudflared*.exe

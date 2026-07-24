@@ -158,6 +158,7 @@ Import: add repo root to `PYTHONPATH` or `sys.path`. Optional future: move under
 | Saddle `/api/v1/experience` + cortex status | Done |
 | MCP tools (`cortex_*`) + shared sim session | Done |
 | Saddle poll/WS consumer (`runners.service_runner --mode consumer`) | Done |
+| HIAgent consumer (xAI API + tools + pause_feed) | Done (`HIAgent/`) |
 
 ### MCP tools (ReflexKernel MCP server)
 
