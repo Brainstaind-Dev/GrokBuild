@@ -20,6 +20,8 @@ from typing import Any, Dict, List, Optional
 
 from ..kernel import ReflexKernel
 from ..types import ReflexAction, Stimulus
+from ..abstraction import VirtualSensorSimulator, get_coherent_sensations, get_capped_coherent_sensations, AbstractionOutput
+from ..abstraction.schema import DetailLevel
 
 
 class PythonAPI:
@@ -52,9 +54,49 @@ class PythonAPI:
     def get_state(self) -> Dict[str, Any]:
         return self.kernel.get_state()
 
+    def get_last_sensations(self) -> list:
+        """Return cached coherent sensations from the live kernel path (no new sim)."""
+        return self.kernel.get_last_sensations()
+
+    def set_last_sensations(self, sensations: list, max_count: int = 3) -> None:
+        self.kernel.set_last_sensations(sensations, max_count=max_count)
+
     def inject_stimulus(self, modality: str, data: Dict[str, Any], **kwargs) -> None:
         s = Stimulus(modality=modality, data=data, **kwargs)
         self.kernel.step(extra_stimuli=[s])
 
     def command(self, cmd: Dict[str, Any]) -> Dict[str, Any]:
         return self.kernel.command(cmd)
+
+    def get_coherent_sensations(self, detail_level: str = "normal", steps: int = 1) -> list:
+        """Return richer coherent sensations (default NORMAL detail to avoid overload for HI).
+
+        Prominent dedicated method for Saddle/HI path. Returns capped list (MAX_SENSATIONS_FOR_HI) with full rich fields (description, arousal_modulated_richness, etc).
+        Always drive from clean virtual + bridge for testability.
+        """
+        dl = DetailLevel(detail_level) if detail_level in ("normal", "enhanced", "diagnostic") else DetailLevel.NORMAL
+        sim = VirtualSensorSimulator()
+        last_out = None
+        for _ in range(max(1, steps)):
+            raw = sim.read_all()
+            out: AbstractionOutput = sim.process(raw, detail_level=dl)
+            last_out = out
+            stimuli = out.to_stimuli()
+            for st in stimuli:
+                s = Stimulus.from_dict(st) if isinstance(st, dict) else st
+                self.kernel.step(extra_stimuli=[s])
+        capped = get_capped_coherent_sensations(last_out) if last_out is not None else []
+        return [s.to_dict() for s in capped]
+
+    def get_body_state(self, detail_level: str = "normal") -> dict:
+        """Return enhanced body state summary (default NORMAL; primary lightweight view to avoid overload).
+
+        Richer sensations context is available via get_coherent_sensations.
+        """
+        dl = DetailLevel(detail_level) if detail_level in ("normal", "enhanced", "diagnostic") else DetailLevel.NORMAL
+        sim = VirtualSensorSimulator()
+        raw = sim.read_all()
+        out: AbstractionOutput = sim.process(raw, detail_level=dl)
+        summary = out.state_summary.to_dict() if out.state_summary else {}
+        summary["detail_level"] = dl.value
+        return summary

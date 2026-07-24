@@ -60,9 +60,13 @@ class VirtualSensorSimulator(AbstractFeatureExtractor):
 
     name = "virtual_tier1"
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None, *, seed: Optional[int] = None):
         super().__init__(config)
-        self.rng = random.Random(config.get("seed", 42) if config else 42)
+        if seed is not None:
+            effective_seed = seed
+        else:
+            effective_seed = config.get("seed", 42) if config else 42
+        self.rng = random.Random(effective_seed)
         self._last_read_ts = time.perf_counter()
 
         # Internal state for realism
@@ -106,12 +110,13 @@ class VirtualSensorSimulator(AbstractFeatureExtractor):
             "ts": now,
         }
 
-    def process(self, raw_data: Optional[Dict[str, Any]] = None) -> AbstractionOutput:
+    def process(self, raw_data: Optional[Dict[str, Any]] = None, detail_level: DetailLevel = DetailLevel.NORMAL) -> AbstractionOutput:
         """
         Run the full virtual perception + abstraction pipeline using explicit
         Tier 1 sensor-to-feature mappings.
 
         This is the heart of the virtual "body" for development and testing.
+        detail_level controls sensation richness passed to Saddle/HI (NORMAL default avoids overload).
         """
         if raw_data is None:
             raw_data = self.read_all()
@@ -277,7 +282,7 @@ class VirtualSensorSimulator(AbstractFeatureExtractor):
             events=events,
             features=features,
             arousal=arousal,
-            detail_level=DetailLevel.NORMAL,
+            detail_level=detail_level,
             primary_zone=primary_zone,
         )
 
@@ -299,7 +304,7 @@ class VirtualSensorSimulator(AbstractFeatureExtractor):
             features=features,
             sensations=sensations,
             state_summary=enhanced_state,
-            detail_level=DetailLevel.NORMAL,
+            detail_level=detail_level,
             ts=now,
         )
 

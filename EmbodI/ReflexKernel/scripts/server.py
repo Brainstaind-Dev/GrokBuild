@@ -117,21 +117,60 @@ def main() -> None:
     if not args.no_kernel_start:
         kernel.start()
 
-    # Run the server (blocking)
-    try:
-        run_server(
-            kernel=kernel,
-            server_config=server_cfg,
-            host=server_cfg.host,
-            port=server_cfg.port,
-            log_level=args.log_level,
-        )
-    except KeyboardInterrupt:
-        print("\nServer stopped by user.")
-    finally:
-        if kernel._running:
-            kernel.stop()
-        print("ReflexKernel server shutdown complete.")
+    viz = kernel.output.get("visualizer") if hasattr(kernel, "output") else None
+    has_viz = viz and getattr(viz, "_running", False)
+
+    if has_viz:
+        print("\n[INFO] Visualization enabled. Running server in background thread to keep Pygame window responsive.")
+        print("       The main thread will pump Pygame events + idle re-renders (using last step state).")
+        print("       Updates will appear when the bridge sends #states or you call /step etc.")
+        print("       Use Ctrl-C to stop.\n")
+        import threading
+        import time
+
+        def _run_server_thread():
+            try:
+                run_server(
+                    kernel=kernel,
+                    server_config=server_cfg,
+                    host=server_cfg.host,
+                    port=server_cfg.port,
+                    log_level=args.log_level,
+                )
+            except Exception as e:
+                print(f"[SERVER THREAD ERROR] {e}")
+
+        server_thread = threading.Thread(target=_run_server_thread, daemon=True, name="reflex-server")
+        server_thread.start()
+
+        # Main thread: keep pumping viz events so the window stays responsive
+        try:
+            while viz and viz.pump_events():
+                # Light sleep to not burn CPU; render updates come from API-driven steps
+                # If you want continuous driving even without external input, consider a ticker here.
+                time.sleep(0.01)
+        except KeyboardInterrupt:
+            print("\nServer stopped by user (via viz loop).")
+        finally:
+            if kernel._running:
+                kernel.stop()
+            print("ReflexKernel server shutdown complete.")
+    else:
+        # No viz: normal blocking server
+        try:
+            run_server(
+                kernel=kernel,
+                server_config=server_cfg,
+                host=server_cfg.host,
+                port=server_cfg.port,
+                log_level=args.log_level,
+            )
+        except KeyboardInterrupt:
+            print("\nServer stopped by user.")
+        finally:
+            if kernel._running:
+                kernel.stop()
+            print("ReflexKernel server shutdown complete.")
 
 
 if __name__ == "__main__":

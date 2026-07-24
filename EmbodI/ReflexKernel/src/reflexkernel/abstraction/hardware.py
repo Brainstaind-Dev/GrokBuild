@@ -20,7 +20,7 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from .base import AbstractFeatureExtractor
-from .schema import AbstractionOutput
+from .schema import AbstractionOutput, DetailLevel
 
 
 class HardwareSensorReader(AbstractFeatureExtractor):
@@ -59,7 +59,7 @@ class HardwareSensorReader(AbstractFeatureExtractor):
             "ts": 0.0,
         }
 
-    def process(self, raw_data: Dict[str, Any] | None = None) -> AbstractionOutput:
+    def process(self, raw_data: Dict[str, Any] | None = None, detail_level: DetailLevel = DetailLevel.NORMAL) -> AbstractionOutput:
         if raw_data is None:
             raw_data = self.read_all()
         # TODO: Implement real feature extraction logic here (or reuse shared logic)

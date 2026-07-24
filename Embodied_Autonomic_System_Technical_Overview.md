@@ -4,8 +4,8 @@
 **Location**: `I:\GrokBuild\EmbodI\ReflexKernel`  
 **Audience**: Co-developers / higher intelligences working at the systems level  
 **Repository**: [https://github.com/Brainstaind-Dev/GrokBuild](https://github.com/Brainstaind-Dev/GrokBuild)  
-**Last Updated**: 21 June 2026 (Grok Build agent tooling + ReflexKernel MCP server)  
-**Status**: Foundation + Sensation Coherence Layer in simulation; **agent-addressable via MCP**; CI green (15/15 tests)
+**Last Updated**: 2026-06-23 (Bidirectional saddle loop confirmed per user clarification; input via saddle drives sensations + viz; chrome tab feedback gap noted; viz prepped for imagery model)  
+**Status**: Bidirectional foundation available: senses/virtual → abstraction (sensations) → Saddle (prominent output); HI injects stimuli via Saddle (drives sim, produces sensations, affects kernel/viz). Richer Sensation output exposed in /state, /sensations, MCP tools (capped, normal default). Visualization now receives sensations from saddle inputs. Chrome-tab automatic feedback of sensations is pull-only currently (user exploring xAI API). Full support for both input styles. Docs updated. Tests pass. Imagery for custom viz model pending.
 
 ---
 
@@ -65,9 +65,15 @@ Raw / Virtual Perception Layer
   (FSR, MPU6050, Microphone, DHT22, etc.)
 ```
 
-**Dual-Path Design** (critical):
-- **Path A (ReflexKernel)**: Events + Features → `Stimulus` objects. Used for low-level reactivity, state machines, imitation learning, and affective fusion.
-- **Path B (Higher Intelligence / Saddle)**: Coherent `Sensation` objects + enhanced `BodyStateSummary`. This is the primary experience for the intelligence.
+**Bidirectional Loop via Saddle (core goal per user alignment)**:
+- **Output direction** (senses → HI): Virtual/hardware sensors → VirtualSensorSimulator/process() → AbstractionOutput (events/features for ReflexKernel + coherent `Sensation` objects + `BodyStateSummary` for HI) → Saddle (prominently exposed in /api/v1/state, /api/v1/sensations, MCP kernel_status/read_affective_state/get_coherent_sensations). HI "feels" the rich sensations (description + structured fields like arousal_modulated_richness, zone_character, temporal_quality, texture_qualities).
+- **Input direction** (HI → system): HI injects stimuli/thoughts via Saddle (POST /api/v1/thought, /api/v1/stimulus, step; or MCP inject_*/step). These drive the shared VirtualSimulator (producing sensations), feed stimuli to kernel (affective + reflexes), and update visualization. Injected data can simulate sensor input and produce rich sensations on the output side (full support for both).
+
+The Saddle (FastAPI + MCP + PythonAPI) is the bidirectional interface. Dual paths preserved: low-level stimuli for ReflexKernel core; rich sensations for HI.
+
+**Current limitation (Grok Web / chrome tab path)**: The Tampermonkey bridge is currently one-way (#states → body). Automatic feedback of rich sensations back into the Grok chat UI or model context within the browser tab is not yet implemented (pull via API/MCP works; user exploring xAI API for tighter integration).
+
+**Visualization reflects sensations**: When saddle input occurs, abstraction is driven, sensations attached (_last_sensations), and PygameVisualizer overlays description/zone/richness + updates body state from resulting stimuli/actions. Prepares for full custom avatar model when imagery provided.
 
 ---
 
@@ -80,7 +86,7 @@ Standard layered architecture:
 - **Reflex Core**: Fast involuntary reactions via state machines + procedural primitives (flinch, tension, orient, etc.).
 - **Learner**: Imitation (demos) + reinforcement (rewards). Persistent store.
 - **Output**: Virtual actuators + Pygame avatar + structured logging.
-- **Interface**: PythonAPI, Stdio, productionized remote server (FastAPI + WebSocket with auth, CORS, rate limiting), and **MCP server** (`mcp_server.py`) for Grok/agent stdio tooling.
+- **Interface**: PythonAPI, Stdio, productionized remote server (FastAPI + WebSocket with auth, CORS, rate limiting), and **MCP server** (`mcp_server.py`) for Grok/agent stdio tooling. Richer Sensation output is now surfaced prominently by default in /state, /sensations, kernel_status, read_affective_state (capped at 3, normal detail).
 
 The kernel remains unchanged in its core contract. The abstraction layer feeds it via the existing `Stimulus` path. Agents now have a **first-class MCP path** that wraps `PythonAPI` without requiring JSONL log parsing or manual server startup.
 

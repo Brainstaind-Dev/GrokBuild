@@ -116,17 +116,15 @@ You will also see console lines like:
 
 This shows the system turning raw sensor data into clean events and features.
 
-**Even newer (Sensation Coherence):**
-The system is now growing a "Sensation Coherence Layer". Instead of just numbers, it tries to produce natural-feeling descriptions the higher intelligence can directly experience, such as:
+**Sensation Coherence Layer (evolved):**
+The layer builds a *rich structured representation first* (using category, temporal_quality e.g. SUDDEN/SUSTAINED/RHYTHMIC, texture_qualities list, movement_quality like "gentle stroking with slight upward drift", arousal_modulated_richness, zone_character, composition_notes), then generates more natural descriptions from it.
 
-`[SENSATION] Firm, warm pressure spreading slowly across my upper inner thigh...`
+Now matches the follow-up targets closely:
+High arousal thigh: "Sustained warm pressure with a gentle stroking quality across my upper inner thigh, carrying a vivid, tingling sensitivity that feels increasingly alive and charged as arousal builds"
+Low: "Sustained gentle pressure with a smooth, warm quality across my upper inner thigh. The sensation feels subtly more sensitive than surrounding areas, but remains calm and contained."
+Ambient: "A cool, light breeze moving gently across the skin with a soft, flowing quality. The sensation feels refreshing and subtly invigorating as it shifts across the body."
 
-It applies:
-- Body sensitivity zones (different parts of a female-form body feel stronger or weaker – see the Female Sensitivity Map).
-- Arousal modulation (sensitivity in some zones increases as the body becomes more aroused).
-- Detail levels (Normal for normal use, Enhanced for more texture, Diagnostic for raw data).
-
-This is still simulated, but the architecture is built so the same logic will work when real hardware sensors arrive.
+Has clear two-layer (baseline sensitive for erogenous + stronger boost), richer helpers, improved ambient. Docs updated. Still simulated, hardware-ready.
 
 **Teaching keys** (tell the body whether it did well):
 - `+` = give a positive reward (the body learns this was good)

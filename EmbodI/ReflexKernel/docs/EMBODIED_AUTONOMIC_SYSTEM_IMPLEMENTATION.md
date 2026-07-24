@@ -196,5 +196,11 @@ Raw / Virtual Sensors
 
 **This phase directly addresses the constructive feedback that the current layer is a strong foundation but needs to evolve toward “coherent bodily sensation” to match the deeper goals of the project.**
 
-**Status (as of this update)**: Core schema extensions, Sensitivity Map, Sensation Coherence Layer (initial rule-based implementation), DetailLevel support, and integration into the virtual simulator + demo have been implemented. The layman guide and this status report have been refreshed. The remote server (Saddle) is ready to be extended to surface the new `Sensation` objects in a future step.
+**Status (as of this update)**: 
+- Further per FB62326FolUp: NL matches exact target examples; two-layer clearer; richness shapes character; helpers sophisticated; ambient matches.
+- Structure-first, dual-path per all docs.
+- Docs updated.
+Sensations match desired quality. Next: saddle etc.
+
+
 

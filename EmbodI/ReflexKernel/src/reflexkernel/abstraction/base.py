@@ -5,9 +5,9 @@ Base classes for the Feature Extraction / Abstraction Layer.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
-from .schema import AbstractionOutput, Feature, SensorEvent
+from .schema import AbstractionOutput, DetailLevel, Feature, SensorEvent
 
 
 class AbstractFeatureExtractor(ABC):
@@ -26,12 +26,14 @@ class AbstractFeatureExtractor(ABC):
         self.config = config or {}
 
     @abstractmethod
-    def process(self, raw_data: Dict[str, Any]) -> AbstractionOutput:
+    def process(self, raw_data: Optional[Dict[str, Any]] = None, detail_level: DetailLevel = DetailLevel.NORMAL) -> AbstractionOutput:
         """
         Take raw sensor readings (or virtual readings) and return abstracted output.
 
         The `raw_data` dict is intentionally flexible so different sources
         (virtual simulator, ESP32 serial, direct I2C, etc.) can feed it.
+
+        detail_level: Controls richness of sensations for Saddle/HI (default NORMAL to prevent overload).
         """
         ...
 

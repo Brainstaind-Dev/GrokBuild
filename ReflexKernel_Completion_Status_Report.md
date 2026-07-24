@@ -363,13 +363,14 @@ Hardware Perception Layer (or Virtual Sensor Layer)
 
 ### Current Operable Status (as of this addendum)
 - **All original ReflexKernel + remote server capabilities remain 100% functional and backward compatible** (demo, Pygame, local PythonAPI, stdio, full FastAPI+WS remote server with auth/CORS/rate-limiting/OpenAPI, learner, etc.).
-- **New Abstraction Layer + Sensation Coherence is live in simulation/virtual mode** (major course correction based on detailed feedback):
-  - Now includes a dedicated **Sensation Coherence Layer** that combines features into natural, coherent sensations (e.g. “Firm, warm pressure spreading slowly across my upper inner thigh...”).
-  - Added **Female Sensitivity Map** (high/medium/low zones with arousal-dependent modulation, especially for erogenous areas).
-  - Introduced **Detail Level** filtering (Normal / Enhanced / Diagnostic).
-  - `BodyStateSummary` and new `Sensation` model are now zone-aware and moving away from pure metrics toward what a higher intelligence can directly "feel".
-  - Dual output preserved: events/features continue to feed ReflexKernel; coherent sensations + enhanced summaries are the primary path for the Saddle / higher intelligence.
-  - Virtual simulator updated with explicit Tier-1 sensor-to-feature mappings using canonical names.
+- **New Abstraction Layer + Sensation Coherence further refined** (addressing FB62326FolUp feedback):
+  - NL now matches the exact target examples in the follow-up doc (high/low arousal thigh and ambient).
+  - Clearer two-layer baseline+stronger amp expressed.
+  - Richness shapes character more deeply.
+  - Helpers more sophisticated in combining and nuance.
+  - Ambient matches target.
+  - Structure-first, dual-path per all docs; "always update docs" followed.
+Produces sensations matching the desired quality in the follow-up. Next: fuller saddle exposure etc.
 - **Higher-intelligence "Saddle"** (existing remote interface) will next be extended to surface the new `BodyStateSummary` (arousal_estimate, contact_state, posture_stability, dominant_event, etc.) so remote agents receive clean abstracted state.
 - **Graceful path to hardware**: Same `AbstractionOutput` shape will be produced by real sensors (FSR, MPU6050, Mic, DHT22 on RPi5+ESP32) once components arrive.
 - Tests and local functionality unaffected.

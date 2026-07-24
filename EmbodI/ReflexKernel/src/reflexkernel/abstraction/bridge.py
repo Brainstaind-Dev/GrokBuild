@@ -13,10 +13,14 @@ the existing Reflex Core, Learner, or remote Saddle.
 
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 from ..types import Stimulus
-from .schema import AbstractionOutput, BodyStateSummary, Sensation
+from .schema import AbstractionOutput, BodyStateSummary, DetailLevel, Sensation
+
+# Safeguard constant: max sensations returned to higher intelligence by default.
+# Keeps richer output prominent without overload (see plan for saddle/MCP goal).
+MAX_SENSATIONS_FOR_HI: int = 3
 
 
 def abstraction_to_stimuli(output: AbstractionOutput) -> List[Stimulus]:
@@ -68,3 +72,15 @@ def get_coherent_sensations(output: AbstractionOutput) -> List[Sensation]:
 def get_state_summary(output: AbstractionOutput) -> BodyStateSummary | None:
     """Convenience accessor for the highest-level signal the Saddle should see."""
     return output.state_summary
+
+
+def get_capped_coherent_sensations(output: AbstractionOutput, max_count: int = None) -> List[Sensation]:
+    """Primary richer output path for Saddle/HI with built-in cap safeguard.
+
+    Returns at most MAX_SENSATIONS_FOR_HI (prominent but bounded to prevent overload).
+    Always prefer this or equivalent caps in interface/MCP layers.
+    """
+    if max_count is None:
+        max_count = MAX_SENSATIONS_FOR_HI
+    sens = get_coherent_sensations(output) or []
+    return sens[:max(0, int(max_count))]

@@ -15,6 +15,8 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ..abstraction.schema import Sensation, BodyStateSummary, DetailLevel
+
 
 class BaseRequest(BaseModel):
     """Base for all incoming requests. Allows extra fields for forward compat."""
@@ -103,7 +105,12 @@ class AckResponse(BaseModel):
 
 
 class StateResponse(BaseModel):
-    """Current kernel state snapshot (matches kernel.get_state())."""
+    """Current kernel state snapshot.
+
+    Prominently includes richer coherent sensations (Sensation objects with full structured fields
+    + natural NL) + state_summary for the Saddle / higher intelligence. Default detail=normal keeps
+    output HI-friendly and non-overloading.
+    """
     tick: int
     running: bool
     context: Optional[Dict[str, Any]] = None
@@ -111,6 +118,9 @@ class StateResponse(BaseModel):
     last_traces: List[Dict[str, Any]] = Field(default_factory=list)
     demo_active: bool = False
     demo_name: Optional[str] = None
+    # Richer outputs exposed prominently (capped list at normal detail)
+    sensations: List[Dict[str, Any]] = Field(default_factory=list, description="Coherent richer sensations (top N, detail normal by default)")
+    state_summary: Optional[Dict[str, Any]] = None
     model_config = ConfigDict(extra="allow")
 
 
@@ -118,6 +128,18 @@ class StepResponse(BaseModel):
     """Result of a step call."""
     actions: List[Dict[str, Any]] = Field(default_factory=list)
     tick: Optional[int] = None
+
+
+class SensationsResponse(BaseModel):
+    """Dedicated response for richer coherent sensations + summary (primary Saddle/HI path).
+
+    Use this (or /state) to receive the synthesized 'felt' body experiences instead of raw metrics.
+    Sensations capped; default normal detail ensures no overload for higher intelligence.
+    """
+    detail_level: str = "normal"
+    sensations: List[Dict[str, Any]] = Field(default_factory=list, description="Rich structured sensations (capped)")
+    state_summary: Optional[Dict[str, Any]] = None
+    model_config = ConfigDict(extra="allow")
 
 
 class EventMessage(BaseModel):

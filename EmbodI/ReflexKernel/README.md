@@ -107,8 +107,14 @@ actions = kernel.step()
 
 ReflexKernel can run as a **remote "body service"** that higher-level AIs (Grok, other LLMs, agent frameworks) connect to over the network.
 
+The remote interface (the "Saddle") is a full bidirectional interface for higher intelligence:
+
+**Output (body to HI)**: Senses (virtual/hardware) → abstraction (rich coherent Sensation objects with description, arousal_modulated_richness, zone_character, temporal/texture qualities, etc.) + BodyStateSummary → prominently available via GET /api/v1/state , /api/v1/sensations (NORMAL detail default, capped), MCP kernel_status / read_affective_state / get_coherent_sensations.
+
+**Input (HI to body)**: HI injects via POST /api/v1/thought , /api/v1/stimulus , /api/v1/step (or MCP equivalents). These drive the shared VirtualSimulator, produce sensations on the output side, feed stimuli to the kernel, affect reflexes/state, and are reflected in the visualization.
+
 The remote interface is a full FastAPI application with:
-- REST endpoints for every major operation
+- REST endpoints for every major operation (including bidirectional stimuli/sensations)
 - WebSocket for real-time push of reflex firings, state, learner events, etc.
 - Simple API key authentication (`X-API-Key` header)
 - Auto-generated OpenAPI docs + interactive Swagger UI at `/docs`

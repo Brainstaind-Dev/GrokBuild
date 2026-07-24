@@ -93,6 +93,31 @@ class DetailLevel(str, Enum):
     DIAGNOSTIC = "diagnostic"  # Full granular metrics + raw features (debugging only)
 
 
+class SensationCategory(str, Enum):
+    """High-level category of the synthesized sensation."""
+    CONTACT_PRESSURE = "contact_pressure"
+    STROKING_MOVEMENT = "stroking_movement"
+    TEMPERATURE = "temperature"
+    COMBINED_TOUCH = "combined_touch"      # Pressure + movement + temperature blended
+    INTERNAL = "internal"
+    HAIR_SCALP = "hair_scalp"
+    PROPRIOCEPTIVE = "proprioceptive"
+    AMBIENT = "ambient"
+    OTHER = "other"
+
+class TemporalQuality(str, Enum):
+    """Temporal character of the sensation."""
+    SUDDEN = "sudden"
+    SUSTAINED = "sustained"
+    BUILDING = "building"
+    FADING = "fading"
+    RHYTHMIC = "rhythmic"
+    PULSING = "pulsing"
+    LINGERING = "lingering"
+    INTERMITTENT = "intermittent"
+    UNKNOWN = "unknown"
+
+
 class Sensation(BaseModel):
     """
     A coherent, natural bodily sensation synthesized for the higher intelligence.
@@ -115,6 +140,28 @@ class Sensation(BaseModel):
     source_features: List[str] = Field(default_factory=list, description="Which raw features/events contributed to this sensation")
     ts: float
     confidence: float = 0.8
+
+    # === NEW FIELDS (per DirDoc1.md proposal + CoherenceDir directive) ===
+    category: SensationCategory = SensationCategory.COMBINED_TOUCH
+    """High-level category of this sensation."""
+
+    temporal_quality: TemporalQuality = TemporalQuality.UNKNOWN
+    """Temporal character (sudden, sustained, building, fading, rhythmic, etc.)."""
+
+    texture_qualities: List[str] = Field(default_factory=list)
+    """List of texture/quality descriptors (e.g. ["warm", "smooth", "firm", "silky"])."""
+
+    movement_quality: Optional[str] = None
+    """Description of movement component (e.g. "gentle stroking upward", "slow circling")."""
+
+    arousal_modulated_richness: float = Field(0.0, ge=0.0, le=1.0)
+    """How much arousal has increased the richness/detail of this sensation (separate from raw intensity)."""
+
+    zone_character: Optional[str] = None
+    """Optional short descriptor of zone-specific sensory character (e.g. "highly sensitive erogenous", "intentionally dulled")."""
+
+    composition_notes: List[str] = Field(default_factory=list)
+    """Internal notes about how multiple features were blended (useful for debugging and future pattern mapping)."""
 
     def to_dict(self) -> Dict[str, Any]:
         return self.model_dump()
@@ -287,6 +334,11 @@ FEMALE_SENSITIVITY_MAP: dict[str, float] = {
 
 # Default zone if unknown
 DEFAULT_SENSITIVITY = 1.0
+
+EROGENOUS_ZONES = {
+    "clitoris_vulva", "nipples_areola", "anus", "inner_thighs",
+    "lower_back_base_spine", "upper_back", "neck_throat", "lips"
+}
 
 
 def get_zone_sensitivity(zone: str, arousal: float = 0.3) -> float:

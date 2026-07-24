@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Grok Conversation → Embodied Saddle Bridge
 // @namespace    https://github.com/embodi/reflexkernel
-// @version      0.2
+// @version      0.3 (enhanced debug + better message container detection)
 // @description  Monitors the open Grok conversation for #tagged sensation/emotion states and forwards them to the local Conversation Sensation Bridge, which injects them into ReflexKernel via the saddle/interface.
 // @author       Embodied Autonomic System
 // @match        https://grok.x.ai/*
@@ -60,9 +60,21 @@
     }
 
     function scanConversation() {
-        // Try to find the main conversation container. Grok's UI changes, so we use multiple selectors.
+        console.log('[Grok→Saddle] scanConversation() running...');
+
+        // Try to find the main conversation container. Grok's UI changes frequently.
+        // Prioritize elements that typically hold the actual chat messages.
         const containers = document.querySelectorAll(
-            '[data-testid="conversation"], .conversation, .chat-messages, main, [class*="message"], [class*="ChatMessage"]'
+            '[data-testid="conversation"], ' +
+            '.conversation, ' +
+            '.chat-messages, ' +
+            'main, ' +
+            '[class*="message"], ' +
+            '[class*="ChatMessage"], ' +
+            '[class*="prose"], ' +           // Grok often renders markdown in prose areas
+            '[data-role="assistant"], ' +
+            'div[role="article"], ' +
+            '[class*="Message"]'
         );
 
         let fullText = '';
@@ -70,20 +82,25 @@
             fullText += ' ' + (el.innerText || el.textContent || '');
         });
 
-        // Also scan the whole body as fallback for recent messages
-        if (!fullText.trim()) {
-            fullText = document.body.innerText || '';
+        // Also scan the whole body as fallback (catches most rendered text)
+        if (!fullText.trim() || fullText.length < 50) {
+            fullText = document.body.innerText || document.body.textContent || '';
         }
 
         const states = extractStatesFromText(fullText);
+        console.log(`[Grok→Saddle] Extracted ${states.length} state(s) from page:`, states);
 
         states.forEach(state => {
             if (!SEEN_STATES.has(state)) {
                 SEEN_STATES.add(state);
-                // Get a bit of surrounding context for richer injection
-                const contextMatch = fullText.match(new RegExp(`.{0,150}#${state}.{0,150}`, 'i'));
-                const context = contextMatch ? contextMatch[0] : '';
+                // Get surrounding context for richer seed
+                const contextMatch = fullText.match(new RegExp(`.{0,180}#${state}.{0,180}`, 'i'));
+                const context = contextMatch ? contextMatch[0] : fullText.substring(0, 400);
+                console.log(`[Grok→Saddle] New unseen state detected: #${state} — sending to bridge`);
                 sendStateToBridge(state, context);
+            } else {
+                // Uncomment the next line temporarily if you want to see deduping in action
+                // console.log(`[Grok→Saddle] Ignoring already seen state: #${state}`);
             }
         });
     }
@@ -121,11 +138,26 @@
 
         console.log('%c[Grok→Saddle] Conversation monitor active. #states will be forwarded to the local bridge.', 'color:#4ade80');
         console.log('%c[Grok→Saddle] Make sure you have run: python scripts/conversation_sensation_bridge.py', 'color:#facc15');
+        console.log('%c[Grok→Saddle] Debug: running on ' + window.location.href, 'color:#94a3b8');
+        console.log('%c[Grok→Saddle] Tip: In console you can run: triggerGrokSaddleScan()  or  resetGrokSaddleSeen()', 'color:#64748b');
     }
 
+    // Allow resetting seen states from console (useful during testing)
+    window.resetGrokSaddleSeen = function() {
+        SEEN_STATES.clear();
+        console.log('[Grok→Saddle] SEEN_STATES cleared. Next #tags will be forwarded again.');
+    };
+
     // Safety: only run on actual chat pages
-    if (window.location.href.includes('grok') || window.location.href.includes('/chat')) {
+    const isGrokPage = window.location.href.includes('grok') || 
+                       window.location.href.includes('/chat') ||
+                       window.location.hostname.includes('grok');
+
+    if (isGrokPage) {
+        console.log('[Grok→Saddle] Detected Grok page, starting monitor...');
         startMonitoring();
+    } else {
+        console.log('[Grok→Saddle] Not on a Grok chat page, monitor not started. Current URL:', window.location.href);
     }
 
     // Expose a manual trigger in console for testing

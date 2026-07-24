@@ -58,9 +58,18 @@ def get_console() -> Console:
     return _console
 
 
-def log_stimulus(logger: logging.Logger, stim: Stimulus, level: int = logging.DEBUG) -> None:
-    mod = stim.modality.value if hasattr(stim.modality, "value") else stim.modality
-    logger.log(level, f"[stim] {mod:8s} src={stim.source} conf={stim.confidence:.2f} data={stim.data}")
+def log_stimulus(logger: logging.Logger, stim: Stimulus | dict, level: int = logging.DEBUG) -> None:
+    if isinstance(stim, dict):
+        mod = stim.get("modality", "unknown")
+        src = stim.get("source", "unknown")
+        conf = stim.get("confidence", 1.0)
+        data = stim.get("data", {})
+    else:
+        mod = stim.modality.value if hasattr(stim.modality, "value") else stim.modality
+        src = stim.source
+        conf = stim.confidence
+        data = stim.data
+    logger.log(level, f"[stim] {mod:8s} src={src} conf={conf:.2f} data={data}")
 
 
 def log_fusion(

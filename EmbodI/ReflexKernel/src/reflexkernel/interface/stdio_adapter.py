@@ -28,12 +28,15 @@ import sys
 from typing import Any, Dict, Optional
 
 from ..kernel import ReflexKernel
+from ..abstraction import VirtualSensorSimulator, get_coherent_sensations, get_capped_coherent_sensations
+from ..abstraction.schema import DetailLevel
 
 
 class StdioAdapter:
-    def __init__(self, kernel: ReflexKernel, pretty: bool = False) -> None:
+    def __init__(self, kernel: ReflexKernel, pretty: bool = False, detail_level: str = "normal") -> None:
         self.kernel = kernel
         self.pretty = pretty
+        self.detail_level = DetailLevel(detail_level) if detail_level in ("normal", "enhanced", "diagnostic") else DetailLevel.NORMAL
         self._in = sys.stdin
         self._out = sys.stdout
 
@@ -67,9 +70,18 @@ class StdioAdapter:
                 except Exception as e:
                     self.send({"type": "error", "error": str(e)})
 
-                # Also push current state on every command (cheap for teaching loops)
+                # Also push current state on every command (cheap for teaching loops), enriched with richer sensations at detail_level
                 try:
                     st = self.kernel.get_state()
+                    sim = VirtualSensorSimulator()
+                    raw = sim.read_all()
+                    out = sim.process(raw, detail_level=self.detail_level)
+                    capped = get_capped_coherent_sensations(out)
+                    sensations = [s.to_dict() for s in capped]
+                    summary = out.state_summary.to_dict() if out.state_summary else {}
+                    summary["detail_level"] = self.detail_level.value
+                    st["sensations"] = sensations
+                    st["state_summary"] = summary
                     self.send({"type": "state", **st})
                 except Exception:
                     pass

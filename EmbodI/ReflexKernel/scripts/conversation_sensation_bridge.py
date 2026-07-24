@@ -112,16 +112,30 @@ async def receive_state(payload: StatePayload):
     kernel_url = f"http://{KERNEL_HOST}:{KERNEL_PORT}/api/v1/thought"
     headers = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
 
+    step_url = f"http://{KERNEL_HOST}:{KERNEL_PORT}/api/v1/step"
+    steps_per_state = 3  # advance kernel so seeds fuse, reflexes fire, and viz updates
+
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.post(kernel_url, json=seed, headers=headers)
             resp.raise_for_status()
+            step_resp = await client.post(
+                step_url,
+                json={"n": steps_per_state},
+                headers=headers,
+            )
+            step_resp.raise_for_status()
     except Exception as e:
         print(f"[bridge] Failed to forward state {state} to kernel: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to reach kernel: {e}")
 
-    print(f"[bridge] Forwarded {state} → kernel (thought seed)")
-    return {"status": "forwarded", "state": state, "kernel_response": resp.json() if 'resp' in locals() else None}
+    print(f"[bridge] Forwarded {state} → kernel (thought seed + {steps_per_state} ticks)")
+    return {
+        "status": "forwarded",
+        "state": state,
+        "kernel_response": resp.json(),
+        "step_response": step_resp.json(),
+    }
 
 @app.get("/health")
 async def health():

@@ -68,6 +68,7 @@ class ReflexKernel:
         self.state = KernelState()
         self._running = False
         self._last_tick_time = 0.0
+        self._last_sensations: List[Any] = []  # set by interface when driving abstraction from Saddle inputs
 
         # Layers (populated in _init_layers)
         self.perception: Any = None
@@ -193,8 +194,22 @@ class ReflexKernel:
 
         # 1. Collect real + injected stimuli
         stimuli: StimulusBatch = self.perception.collect_all()
+
+        # Normalize extra_stimuli.
+        # The abstraction layer's to_stimuli() returns List[dict], while
+        # perception and internal paths return List[Stimulus].
+        # We accept both for flexibility when driving from virtual abstraction or Saddle.
         if extra_stimuli:
-            stimuli.extend(extra_stimuli)
+            for item in extra_stimuli:
+                if isinstance(item, dict):
+                    stimuli.append(Stimulus.from_dict(item))
+                elif isinstance(item, Stimulus):
+                    stimuli.append(item)
+                else:
+                    try:
+                        stimuli.append(Stimulus.from_dict(item))
+                    except Exception:
+                        pass
 
         for s in stimuli:
             log_stimulus(self.logger, s)
@@ -225,7 +240,15 @@ class ReflexKernel:
         # 5. Apply to actuators + visualization
         self.output["actuation"].apply(actions)
         if viz := self.output.get("visualizer"):
-            viz.render(context, actions, traces, stimuli)
+            # Prepare data for the visualizer (thread-safe update of cache).
+            # Actual drawing happens on the main thread (either inside this step for demo,
+            # or via the pump_events loop when server is in bg thread).
+            sens = getattr(self, "_last_sensations", None) or []
+            if hasattr(viz, "prepare_render"):
+                viz.prepare_render(context, actions, traces, stimuli, sens)
+            else:
+                # Fallback for older visualizers
+                viz.render(context, actions, traces, stimuli, sensations=sens)
 
         self.output["structured_log"].log_tick(self.state.tick, context, actions, traces)
 
@@ -301,6 +324,22 @@ class ReflexKernel:
             "demo_active": self.state.demo_active,
             "demo_name": self.state.demo_name,
         }
+
+    def get_last_sensations(self) -> List[Any]:
+        """Public accessor for the most recent coherent sensations (HI/Saddle path).
+
+        Populated by the Saddle drive loop, demo abstraction path, or
+        ``set_last_sensations``. Prefer this over reading ``_last_sensations``.
+        """
+        return list(getattr(self, "_last_sensations", None) or [])
+
+    def set_last_sensations(self, sensations: List[Any], max_count: int = 3) -> None:
+        """Cache coherent sensations for viz / Sensory Cortex / HI consumers."""
+        try:
+            max_n = max(0, int(max_count))
+        except (TypeError, ValueError):
+            max_n = 3
+        self._last_sensations = list(sensations or [])[:max_n]
 
     # ------------------------------------------------------------------
     # Lightweight event emission for remote interfaces (WebSocket etc.)
