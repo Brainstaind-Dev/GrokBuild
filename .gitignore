@@ -26,11 +26,19 @@ Thumbs.db
 **/logs/
 **/data/learned*/
 **/data/hi_sessions/
+**/data/hi_eval/
+**/data/test_mcp/
+data/hi_eval/
+data/test_mcp/
 **/captures/
 **/recordings/
 *.log
 reflexkernel_state.json
 HIAgent/logs/
+
+# Local 3D/print assets (keep on desktop; not required for Pi runtime)
+# Uncomment to ignore entirely if desired:
+# Models/
 
 # Binaries / large local tools
 **/cloudflared*.exe
