@@ -23,13 +23,15 @@ Generated after standup: `env.pi.sh` (source in new shells)
 # After cloning GrokBuild and installing apt packages (see 01 output if anything is missing):
 cd ~/GrokBuild   # or your clone path
 
-chmod +x scripts/pi/*.sh
+# If you see "Permission denied" on ./scripts/pi/… use bash (works without +x):
+#   bash scripts/pi/01_verify_host.sh
+chmod +x scripts/pi/*.sh   # optional after pull if mode was lost
 
 # Step 1 — host tools
-./scripts/pi/01_verify_host.sh
+bash scripts/pi/01_verify_host.sh
 
 # Step 2 — Embodi project
-./scripts/pi/02_standup_embodi.sh
+bash scripts/pi/02_standup_embodi.sh
 ```
 
 ### Optional flags (`02_standup_embodi.sh`)
