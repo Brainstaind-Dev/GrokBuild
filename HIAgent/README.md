@@ -18,8 +18,11 @@ You / pulse loop
    pip install -e ".[server,dev]"
    pip install xai-sdk
    ```
-2. **`XAI_API_KEY`** user environment variable = API **secret** (`xai-…`), not the key ID.  
-   New terminal after setting it.
+2. **`XAI_API_KEY`** = API **secret** (`xai-…`), not the key ID. Supported sources (does not override a key already in the process env):
+   - **Pi / Linux:** `~/.config/embodi/env` with `export XAI_API_KEY=xai-...` (`chmod 600`); optional `source` from `~/.bashrc`
+   - **Windows:** User env var *or* `%USERPROFILE%\.config\embodi\env`
+   - Optional gitignored project `.env`
+   - Loaded automatically by HIAgent (`env_bootstrap`); Pi `scripts/pi/env.pi.sh` also sources `~/.config/embodi/env`
 3. Repo paths on `PYTHONPATH` when running manually (stand-up script sets this).
 
 ## Quick start (recommended)
