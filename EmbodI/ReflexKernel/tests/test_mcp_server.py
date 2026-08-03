@@ -7,6 +7,10 @@ from pathlib import Path
 
 import pytest
 
+# MCP is an optional extra (pip install -e ".[mcp]"). Skip this module cleanly
+# when it is not installed so core pytest still passes on Pi / minimal installs.
+pytest.importorskip("mcp")
+
 import reflexkernel.mcp_server as mcp_mod
 from reflexkernel.mcp_server import (
     KernelSession,

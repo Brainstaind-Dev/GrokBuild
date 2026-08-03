@@ -11,7 +11,7 @@
 #
 # Usage:
 #   ./scripts/pi/02_standup_embodi.sh
-#   ./scripts/pi/02_standup_embodi.sh --with-mcp
+#   ./scripts/pi/02_standup_embodi.sh --no-mcp
 #   ./scripts/pi/02_standup_embodi.sh --with-xai
 #   ./scripts/pi/02_standup_embodi.sh --start-saddle
 #   ./scripts/pi/02_standup_embodi.sh --start-saddle --host 0.0.0.0 --port 8000
@@ -24,7 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=common.sh
 source "${SCRIPT_DIR}/common.sh"
 
-WITH_MCP=0
+WITH_MCP=1
 WITH_XAI=0
 START_SADDLE=0
 SKIP_TESTS=0
@@ -37,6 +37,7 @@ EXTRAS="dev,server"
 for arg in "$@"; do
   case "$arg" in
     --with-mcp) WITH_MCP=1 ;;
+    --no-mcp) WITH_MCP=0 ;;
     --with-xai) WITH_XAI=1 ;;
     --start-saddle) START_SADDLE=1 ;;
     --skip-tests) SKIP_TESTS=1 ;;

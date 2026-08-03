@@ -36,7 +36,8 @@ chmod +x scripts/pi/*.sh
 
 | Flag | Meaning |
 |------|---------|
-| `--with-mcp` | Also install MCP extra |
+| *(default)* | Installs `dev,server,mcp` extras so full pytest (incl. MCP tests) works |
+| `--no-mcp` | Skip MCP extra (MCP tests skip automatically if `mcp` is not installed) |
 | `--with-xai` | `pip install xai-sdk` for HIAgent |
 | `--start-saddle` | After setup, run Saddle in foreground |
 | `--host 0.0.0.0` | Bind address when starting Saddle |
