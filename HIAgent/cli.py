@@ -64,6 +64,13 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
 
+    # Load ~/.config/embodi/env (and friends) before any xAI client init
+    from HIAgent.env_bootstrap import format_load_summary, load_embodi_env
+
+    env_summary = load_embodi_env()
+    if args.verbose or not env_summary.get("xai_api_key_present"):
+        print(format_load_summary(env_summary))
+
     from HIAgent.config import load_config
     from HIAgent.loop.agent import HigherIntelligenceAgent
 

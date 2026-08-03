@@ -28,10 +28,18 @@ class XAIChatSession:
         self.tool_dispatch = tool_dispatch
         self.max_tool_rounds = max_tool_rounds
         self.system_prompt = system_prompt
+        if not api_key and not os.environ.get("XAI_API_KEY"):
+            try:
+                from HIAgent.env_bootstrap import load_embodi_env
+
+                load_embodi_env()
+            except Exception:
+                pass
         key = api_key or os.environ.get("XAI_API_KEY")
         if not key:
             raise RuntimeError(
-                "XAI_API_KEY is not set. Set the user environment variable and restart the terminal."
+                "XAI_API_KEY is not set. Add it to ~/.config/embodi/env "
+                "(export XAI_API_KEY=xai-...) or set the user environment variable."
             )
         from xai_sdk import Client
 

@@ -24,6 +24,13 @@ class HigherIntelligenceAgent:
     """
 
     def __init__(self, config: Optional[HIAgentConfig] = None):
+        # Load ~/.config/embodi/env before config defaults read env vars
+        try:
+            from HIAgent.env_bootstrap import load_embodi_env
+
+            load_embodi_env()
+        except Exception:
+            pass
         self.config = config or load_config()
         self.backend = create_backend(self.config)
         self.feed = FeedController(
