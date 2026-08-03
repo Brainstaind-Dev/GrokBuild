@@ -137,6 +137,21 @@ cd "$RK"
 info "pip install -e \".[$EXTRAS]\""
 "$PIP" install -e ".[${EXTRAS}]"
 
+if [[ "$WITH_MCP" -eq 1 ]]; then
+  # Ensure the *Model Context Protocol* SDK is present (FastMCP), not a
+  # name-collision package that also registers as top-level "mcp".
+  if ! "$PY" -c "from mcp.server.fastmcp import FastMCP" 2>/dev/null; then
+    warn "mcp.server.fastmcp missing after install — reinstalling official MCP SDK"
+    "$PIP" uninstall -y mcp 2>/dev/null || true
+    "$PIP" install -q "mcp>=1.2.0"
+  fi
+  if "$PY" -c "from mcp.server.fastmcp import FastMCP" 2>/dev/null; then
+    ok "MCP FastMCP import OK"
+  else
+    warn "MCP FastMCP still unavailable — MCP tests will skip; core tests should pass"
+  fi
+fi
+
 if [[ "$WITH_XAI" -eq 1 ]]; then
   hdr "Optional: xAI SDK (HIAgent)"
   "$PIP" install -q xai-sdk
