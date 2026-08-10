@@ -95,15 +95,42 @@ Create a **3D-printable, biomimetic body shell/scaffold** that houses collected 
 
 | Stage | Content | Notes |
 |------:|---------|--------|
-| 1 | Head outer (or L/R halves) | Split if needed for bed |
-| 2 | Head internals / mic cups / ESP32 cradle | Flat on bed |
-| 3 | Torso front | Hollow, speakers/FSR |
-| 4 | Torso back | Pi bay, battery, vents |
-| 5 | Lids, doors, battery tray | Service access |
-| 6 | Ears, grills, small mounts | Batch plate |
+| 1 | Head outer (or L/R halves) | Split if needed for bed; latch interfaces on seams |
+| 2 | Head internals / mic cradles / ESP32 cradle | Flat on bed |
+| 3 | Torso front | Hollow, speakers/FSR; latch catches for back |
+| 4 | Torso back | Pi bay, battery, vents; matching latches |
+| 5 | Lids, **latched** service doors, battery tray | Tool-free or single-tool open |
+| 6 | **Featured ear shells (pinnae)**, grills, mounts | Batch plate — acoustic form, not flush holes |
 | 7 | Optional base / limb stubs | Later |
 
 Exports: `Models/print/` as STL/3MF per stage.
+
+### Latch strategy
+
+Major body parts should **latch together** (not glue-primary):
+
+| Joint | Mechanism (v1 target) |
+|-------|------------------------|
+| Torso front ↔ back | 2–4 cantilever clips or draw latches along seam |
+| Head halves / faceplate | Snap clips + optional security screw |
+| Service door (Pi / charge) | Living hinge or captive latch |
+| Neck ring ↔ head/torso | Bayonet or clip ring (head removable for wiring) |
+| Battery tray | Latch or slide lock so packs cannot free-fall |
+
+Print latch flex arms in the orientation that maximizes layer strength (usually arm flat on bed). Screws/heat-set inserts are fine as secondary retention on high-load bays (Pi, neck).
+
+### Ear / mic features (directionality)
+
+Do **not** use flush holes alone for the ear mics. Outer-ear geometry improves L/R and front/rear cues for the dual MAX9814 pair:
+
+| Feature | Why |
+|---------|-----|
+| Forward cup / pinna ridge | Shadows rear sound → better spatial contrast |
+| Outward flare | Incidence like a human ear |
+| Mic board behind aperture | Short path to ESP32; acoustic opening clear |
+| Optional TPU pad later | Isolation from shell vibration |
+
+Body form may be **feature-rich** (stylized biomimetic detail is encouraged when it serves sensing, service, or assembly).
 
 ---
 
@@ -134,8 +161,9 @@ Until MCP is live: measure + docs + manual Blender; same stage list.
 ## 7. Printability rules (summary)
 
 - Walls ≥ 1.6–2.0 mm structural.  
-- Split for overhangs / bed size.  
-- M3 inserts or clips; service without glue-destroy.  
+- Split for overhangs / bed size (≤ ~250 mm per stage).  
+- **Latches/clips first** for major joins; M3 inserts where load needs it; no glue-only critical joints.  
+- **Featured ears** (not blank flush ports).  
 - Pi airflow; mic/DHT ports open.  
 - Neck trunk ≥ 12–15 mm for cables.  
 - Battery tray: no sharp crush ribs; charge accessible.  
