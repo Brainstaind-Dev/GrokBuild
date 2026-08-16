@@ -24,9 +24,15 @@ Software stack stays in `EmbodI/`, `SensoryCortex/`, `HIAgent/`.
 
 Head/torso STL and blend iterations from earlier Grok Web scaffold work (`Head_*`, `Torso_*`, `*Minus.blend`, etc.).
 
-## Target master file
+## Master files
 
-`embodi_scaffold_v1.blend` — create after measurements + Blender MCP (or manual Blender).
+| File | Role |
+|------|------|
+| **`embodi_scaffold_v2.blend`** | **Current** — clean organic humanoid + soft bays + featured ears |
+| `embodi_scaffold_v1.blend` | Superseded boxy/legacy-REF pass (history) |
+
+Units = mm. Preview: `print/_scaffold_v2_preview.png`.  
+Legacy boolean STLs (`Head_*`, `Torso_*`) are reference only — not the form source.
 
 ## Print exports
 

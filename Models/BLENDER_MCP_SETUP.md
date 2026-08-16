@@ -2,62 +2,86 @@
 
 **Goal:** Let Grok Build drive Blender for scaffold modeling and STL/3MF export.
 
-**Status:** Not connected in project `.grok/config.toml` yet.
+**Status:** Blender Lab MCP installed at `I:\Tools\blender_mcp` (2026-08).  
+**Config:** Project `.grok/config.toml` → `[mcp_servers.blender]`
 
 ---
 
-## 1. Install Blender
+## 1. What is installed
 
-- Install **Blender 4.x LTS** (or current stable) on the Windows desktop.  
-- Confirm it launches: `blender --version` if on PATH, or note full path e.g.  
-  `C:\Program Files\Blender Foundation\Blender 4.x\blender.exe`
+| Piece | Location |
+|-------|----------|
+| Lab source tree | `I:\Tools\blender_mcp\` |
+| Add-on | Installed in Blender (MCP extension; needs **Blender 5.1+**) |
+| MCP package | `I:\Tools\blender_mcp\mcp\` (`blmcp`, entry `blender-mcp`) |
+| uv | `C:\Users\Agentdud\.local\bin\uv.exe` |
 
----
+**Data flow:**
 
-## 2. Install a Blender MCP bridge
-
-Pick one maintained **Blender MCP** integration (addon + MCP server) that exposes tools such as:
-
-- create/list/delete objects  
-- set transforms / dimensions  
-- import/export STL or OBJ  
-- optionally execute Python in Blender  
-
-Record here after install:
-
-| Field | Value |
-|-------|--------|
-| Package / repo | |
-| Version | |
-| Addon enabled | yes / no |
-| Server start command | |
-| Port / transport | |
+```text
+Grok Build  ⇐ stdio MCP ⇒  uv run blender-mcp  ⇐ TCP 127.0.0.1:9876 ⇒  Blender add-on
+```
 
 ---
 
-## 3. Register with Grok Build
+## 2. Grok Build config (project)
 
-Add to **user** or **project** MCP config (example shape only — match your package):
+In `I:\GrokBuild\.grok\config.toml`:
 
 ```toml
 [mcp_servers.blender]
-command = "uvx"   # or npx / python path from package docs
-args = ["blender-mcp"]
+command = "I:\\Tools\\blender_mcp\\mcp\\.venv\\Scripts\\python.exe"
+args = ["-m", "blmcp"]
 enabled = true
-startup_timeout_sec = 60
+startup_timeout_sec = 120
+env = { BLENDER_MCP_HOST = "127.0.0.1", BLENDER_MCP_PORT = "9876" }
 ```
 
-Or if the server is “connect to running Blender addon”:
+**Important:** Lab’s `blmcp` needs **`mcp.server.fastmcp` (MCP SDK 1.x)**.  
+`mcp` 2.0 removed FastMCP; if `uv` resolves to 2.0, the server crashes on handshake.
 
-1. Start Blender.  
-2. Enable MCP addon / start server from Blender UI.  
-3. Point Grok MCP client at that endpoint per addon docs.
+Pin in `I:\Tools\blender_mcp\mcp\pyproject.toml`:
 
-Restart Grok session and confirm **blender** tools appear.
+```toml
+"mcp[cli]>=1.9.0,<2.0",
+```
+
+Then:
+
+```powershell
+cd I:\Tools\blender_mcp\mcp
+uv lock
+uv sync
+python -c "from mcp.server.fastmcp import FastMCP; print('OK')"
+python -m blmcp --help
+```
 
 ---
 
-## 4. Project conventions (once connected)
+## 3. Every session checklist
+
+1. Start **Blender 5.1+** with your scaffold file (or empty scene).  
+2. Ensure **MCP add-on** is enabled and its **bridge server is running** (preferences → start if not auto-start).  
+3. Confirm TCP listen (PowerShell):  
+   `Get-NetTCPConnection -LocalPort 9876 -State Listen`  
+4. Start **Grok Build** in `I:\GrokBuild` (or restart after config changes).  
+5. Confirm blender tools appear (not “timed out”).
+
+---
+
+## 4. Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `blender` MCP **timed out after 60s** | `uv` not on Grok PATH | Full path to `uv.exe` (above) |
+| Tools fail / cannot connect to Blender | Add-on not listening | Start MCP server in Blender prefs; check port 9876 |
+| Wrong Blender version | Need 5.1+ for Lab add-on | Upgrade Blender |
+| Slow first start | `uv run` resolving env | Run once: `cd I:\Tools\blender_mcp\mcp; uv run blender-mcp` then Ctrl+C |
+| Port mismatch | Add-on not on 9876 | Align prefs with `BLENDER_MCP_PORT` |
+
+---
+
+## 5. Project conventions (once connected)
 
 | Convention | Value |
 |------------|--------|
@@ -69,23 +93,25 @@ Restart Grok session and confirm **blender** tools appear.
 
 ---
 
-## 5. Smoke test
+## 6. Smoke test
 
-1. Create a 20×20×20 mm cube named `mcp_smoke`.  
-2. Export `Models/print/_smoke_cube.stl`.  
-3. Open in Bambu Studio — confirm scale is mm (20 mm cube).  
-
----
-
-## 6. Fallback (no MCP)
-
-Use manual Blender with the same collections and `BOM_MEASUREMENTS.md`.  
-Agent still provides dimensions, stage list, and review against P2S limits.
+1. Blender open + port 9876 listening.  
+2. Grok session with blender MCP connected.  
+3. Agent: create a 20×20×20 mm cube named `mcp_smoke`.  
+4. Export `Models/print/_smoke_cube.stl`.  
+5. Open in Bambu Studio — confirm **20 mm** scale.
 
 ---
 
-## 7. Related
+## 7. Security
+
+Lab warning: MCP can run LLM-generated Python **inside Blender**. Use non-sensitive project files only.
+
+---
+
+## 8. Related
 
 - Scaffold plan: `Travelers/Docs/Scaffold_Print_P2S_Plan.md`  
 - Parts list: `Parts.md`  
-- Legacy meshes: `Models/*.stl`, `Models/*.blend`
+- Measurements: `Models/BOM_MEASUREMENTS.md`  
+- Lab tree: `I:\Tools\blender_mcp\`

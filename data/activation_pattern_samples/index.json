@@ -1,0 +1,27 @@
+[
+  {
+    "scenario": "quiet_baseline",
+    "file": "quiet_baseline.json",
+    "feel_line": "feel: arousal=0.28 valence=0.10 whole_body=0.15 autonomic=0.65 breath_depth=0.59 dom=whole_body"
+  },
+  {
+    "scenario": "loud_left_ear_startle",
+    "file": "loud_left_ear_startle.json",
+    "feel_line": "feel: arousal=0.82 valence=-0.30 ear_L=0.92 whole_body=0.20 flinch=0.65 orient=0.65 dom=ear_L"
+  },
+  {
+    "scenario": "chest_warm_contact",
+    "file": "chest_warm_contact.json",
+    "feel_line": "feel: arousal=0.55 valence=0.35 chest=0.70 whole_body=0.14 relax=0.65 autonomic=0.65 dom=chest"
+  },
+  {
+    "scenario": "solar_plexus_guard",
+    "file": "solar_plexus_guard.json",
+    "feel_line": "feel: arousal=0.58 valence=-0.10 solar_plexus=0.72 whole_body=0.14 tension=0.65 autonomic=0.65 dom=solar_plexus"
+  },
+  {
+    "scenario": "neck_tension",
+    "file": "neck_tension.json",
+    "feel_line": "feel: arousal=0.60 valence=-0.15 neck_throat=0.65 whole_body=0.15 freeze=0.65 tension=0.65 dom=neck_throat"
+  }
+]

@@ -65,6 +65,10 @@ class Stimulus:
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Stimulus":
+        if isinstance(d, cls):
+            return d
+        if not isinstance(d, dict):
+            raise TypeError(f"Stimulus.from_dict expects dict or Stimulus, got {type(d)!r}")
         mod = d.get("modality", "other")
         try:
             modality = Modality(mod)
@@ -72,11 +76,39 @@ class Stimulus:
             modality = mod
         return cls(
             modality=modality,
-            data=d.get("data", {}),
+            data=d.get("data", {}) or {},
             ts=float(d.get("ts", time.perf_counter())),
             confidence=float(d.get("confidence", 1.0)),
             source=str(d.get("source", "unknown")),
         )
+
+
+def normalize_stimuli(items: Optional[List[Any]]) -> List[Stimulus]:
+    """
+    Accept mixed extra_stimuli from abstraction (dicts), Python API (Stimulus),
+    or JSON/Saddle payloads. Silently skips unconvertible items.
+    """
+    if not items:
+        return []
+    out: List[Stimulus] = []
+    for item in items:
+        if isinstance(item, Stimulus):
+            out.append(item)
+        elif isinstance(item, dict):
+            try:
+                out.append(Stimulus.from_dict(item))
+            except Exception:
+                continue
+        else:
+            # e.g. pydantic model with model_dump / to_dict
+            try:
+                if hasattr(item, "to_dict") and callable(item.to_dict):
+                    out.append(Stimulus.from_dict(item.to_dict()))
+                elif hasattr(item, "model_dump") and callable(item.model_dump):
+                    out.append(Stimulus.from_dict(item.model_dump()))
+            except Exception:
+                continue
+    return out
 
 
 @dataclass

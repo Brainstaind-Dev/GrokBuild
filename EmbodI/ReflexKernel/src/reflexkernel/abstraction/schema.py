@@ -60,17 +60,18 @@ class BaseSignal(BaseModel):
 
     def to_stimulus_dict(self) -> Dict[str, Any]:
         """Convert to a shape compatible with existing ReflexKernel Stimulus."""
+        src = self.source.value if isinstance(self.source, SensorSource) else str(self.source)
         return {
             "modality": self.raw_modality or self.category.value,
             "data": {
                 "type": self.type,
                 "value": self.value,
                 "confidence": self.confidence,
-                "source": self.source.value if isinstance(self.source, SensorSource) else self.source,
+                "source": src,
             },
             "ts": self.ts,
             "confidence": self.confidence,
-            "source": str(self.source),
+            "source": src,
         }
 
 

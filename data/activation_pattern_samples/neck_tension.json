@@ -1,0 +1,77 @@
+{
+  "scenario": "neck_tension",
+  "dumped_at": "2026-08-16T02:46:02.637772+00:00",
+  "feel_line": "feel: arousal=0.60 valence=-0.15 neck_throat=0.65 whole_body=0.15 freeze=0.65 tension=0.65 dom=neck_throat",
+  "mood": "steady_attention",
+  "delta_from_last": "reflex: tension, freeze",
+  "activation_pattern": {
+    "schema_version": "activation_pattern_v0",
+    "ts": 1786848362.6376846,
+    "tick": 104,
+    "source_path": "sim",
+    "global": {
+      "arousal": 0.6,
+      "valence": -0.15,
+      "dominance": 0.4,
+      "urgency": 0.3
+    },
+    "zones": {
+      "head": 0.0,
+      "ear_L": 0.0,
+      "ear_R": 0.0,
+      "face": 0.0,
+      "neck_throat": 0.65,
+      "chest": 0.0,
+      "solar_plexus": 0.0,
+      "torso_back": 0.0,
+      "torso_front": 0.0,
+      "shoulders": 0.0,
+      "whole_body": 0.15
+    },
+    "reflexes": {
+      "flinch": 0.0,
+      "orient": 0.0,
+      "freeze": 0.65,
+      "tension": 0.65,
+      "blink": 0.0,
+      "relax": 0.0,
+      "micro_expression": 0.0,
+      "autonomic": 0.0,
+      "jaw_clench": 0.45499999999999996,
+      "shoulder_elevation": 0.48750000000000004,
+      "breath_depth": 0.0,
+      "custom": 0.0
+    },
+    "salience": {
+      "dominant_zone": "neck_throat",
+      "dominant_reflex": "freeze",
+      "active_pattern_ids": [
+        "guarding"
+      ]
+    },
+    "meta": {
+      "detail_level": "normal",
+      "producer": "sensory_cortex",
+      "pattern_rev": "0.1",
+      "feel_line": "feel: arousal=0.60 valence=-0.15 neck_throat=0.65 whole_body=0.15 freeze=0.65 tension=0.65 dom=neck_throat"
+    }
+  },
+  "salient_sensations": [
+    {
+      "description": "tight band at neck",
+      "zone": "neck_throat",
+      "intensity": 0.65,
+      "valence": -0.15,
+      "arousal_contribution": 0.5,
+      "novelty": 0.55,
+      "category": null,
+      "temporal_quality": null,
+      "texture_qualities": [],
+      "movement_quality": null,
+      "arousal_modulated_richness": 0.5,
+      "zone_character": null,
+      "confidence": 0.8,
+      "composition_notes": []
+    }
+  ]
+}

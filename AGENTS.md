@@ -1,13 +1,31 @@
 # GrokBuild — Project Rules
 
+## Context recovery (read after compaction / new session)
+
+Long sessions compact. Durable status lives in **multi-vault notes** (not only chat memory):
+
+| File | When to read |
+|------|----------------|
+| `Context/NOW.md` | Always first — hot status + open fuses |
+| `Context/INDEX.md` | Map topic → vault |
+| `Context/vaults/<domain>.md` | Only the domain you are working |
+
+Update `NOW.md` + the relevant vault when a phase lands. Full guide: `Context/README.md`.
+
+Grok `/flush` memory under `~/.grok/memory/` is **searchable** and complementary; **repo vaults are source of truth** when they disagree with stale session notes.
+
 ## Repository layout
 
 | Path | Purpose |
 |------|---------|
+| `Context/` | Multi-vault session recovery (NOW, INDEX, domain vaults) |
 | `EmbodI/ReflexKernel/` | Core embodied nervous-system kernel (Python package) |
 | `EmbodI/*.md` | Architecture specs and layman guides |
 | `EmbodI/*.xlsx` | Sensor platform trackers |
 | `Travelers/` | Related travel/autonomic research assets |
+| `Models/` | Scaffold blend/STL + Blender MCP notes |
+| `SensoryCortex/`, `HIAgent/` | HI packaging + xAI agent |
+| `scripts/pi/` | Pi git-only standup |
 | `ReflexKernel_Completion_Status_Report.md` | Status report — update only when asked |
 
 ## ReflexKernel architecture (layered, bottom-up)

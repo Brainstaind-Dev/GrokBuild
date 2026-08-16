@@ -1,0 +1,77 @@
+{
+  "scenario": "chest_warm_contact",
+  "dumped_at": "2026-08-16T02:46:02.636415+00:00",
+  "feel_line": "feel: arousal=0.55 valence=0.35 chest=0.70 whole_body=0.14 relax=0.65 autonomic=0.65 dom=chest",
+  "mood": "steady_attention",
+  "delta_from_last": "arousal falling; reflex: relax",
+  "activation_pattern": {
+    "schema_version": "activation_pattern_v0",
+    "ts": 1786848362.6363244,
+    "tick": 102,
+    "source_path": "sim",
+    "global": {
+      "arousal": 0.55,
+      "valence": 0.35,
+      "dominance": 0.5,
+      "urgency": 0.275
+    },
+    "zones": {
+      "head": 0.0,
+      "ear_L": 0.0,
+      "ear_R": 0.0,
+      "face": 0.0,
+      "neck_throat": 0.0,
+      "chest": 0.7,
+      "solar_plexus": 0.0,
+      "torso_back": 0.0,
+      "torso_front": 0.0,
+      "shoulders": 0.0,
+      "whole_body": 0.1375
+    },
+    "reflexes": {
+      "flinch": 0.0,
+      "orient": 0.0,
+      "freeze": 0.0,
+      "tension": 0.0,
+      "blink": 0.0,
+      "relax": 0.65,
+      "micro_expression": 0.0,
+      "autonomic": 0.65,
+      "jaw_clench": 0.0,
+      "shoulder_elevation": 0.0,
+      "breath_depth": 0.5338125,
+      "custom": 0.0
+    },
+    "salience": {
+      "dominant_zone": "chest",
+      "dominant_reflex": "relax",
+      "active_pattern_ids": [
+        "gentle_contact"
+      ]
+    },
+    "meta": {
+      "detail_level": "normal",
+      "producer": "sensory_cortex",
+      "pattern_rev": "0.1",
+      "feel_line": "feel: arousal=0.55 valence=0.35 chest=0.70 whole_body=0.14 relax=0.65 autonomic=0.65 dom=chest"
+    }
+  },
+  "salient_sensations": [
+    {
+      "description": "sustained warm pressure on chest",
+      "zone": "chest",
+      "intensity": 0.7,
+      "valence": 0.35,
+      "arousal_contribution": 0.45,
+      "novelty": 0.4,
+      "category": null,
+      "temporal_quality": null,
+      "texture_qualities": [],
+      "movement_quality": null,
+      "arousal_modulated_richness": 0.62,
+      "zone_character": null,
+      "confidence": 0.8,
+      "composition_notes": []
+    }
+  ]
+}

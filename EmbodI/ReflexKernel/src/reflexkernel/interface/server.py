@@ -277,19 +277,14 @@ def create_app(
         Call this when the interface receives signals so the sensations are reflected in the body/viz.
         The produced sensations are also attached to the kernel so the visualizer can display them.
         """
-        from ..types import Stimulus
         last_out = None
         for _ in range(max(1, num_steps)):
             raw = virtual_sim.read_all()
             out: AbstractionOutput = virtual_sim.process(raw)
             last_out = out
-            stim_dicts = out.to_stimuli()
-            extras = []
-            for d in stim_dicts:
-                try:
-                    extras.append(Stimulus.from_dict(d) if isinstance(d, dict) else d)
-                except Exception:
-                    pass
+            from ..abstraction.bridge import abstraction_to_stimuli
+
+            extras = abstraction_to_stimuli(out)
             if extras:
                 kernel.step(extra_stimuli=extras)
         if last_out is not None:
@@ -622,8 +617,9 @@ def create_app(
             # Support optional extra stimuli in the request
             extra = None
             if body.extra_stimuli:
-                from ..types import Stimulus
-                extra = [Stimulus.from_dict(s) for s in body.extra_stimuli]
+                from ..types import normalize_stimuli
+
+                extra = normalize_stimuli(list(body.extra_stimuli))
 
             actions = kernel.step(extra_stimuli=extra)
             all_actions.extend([a.to_dict() for a in actions])

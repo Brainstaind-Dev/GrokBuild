@@ -2,14 +2,14 @@
 
 **Source list:** `Parts.md`  
 **Units:** millimeters  
-**Status:** placeholders — replace with caliper values before freezing Blender bays  
+**Status:** Pi kit frozen from calipers (2026-08-11); other rows still open  
 
 Measure the **as-built kit** (including headers, USB jacks, battery pouch, CanaKit packaging if Pi stays in a case).
 
 | ID | Component | L | W | H | Notes / clearance needed |
 |----|-----------|---|---|---|---------------------------|
-| pi5 | Pi 5 board only | 85 | 56 | 17 | Official approx; re-measure |
-| pi5_kit | CanaKit / case envelope | | | | **Critical** if using kit case |
+| pi5 | Pi 5 board only | 85 | 56 | 17 | Official approx; prefer kit envelope |
+| pi5_kit | CanaKit case + fan (as built) | **93.77** | **63.02** | **30.45** | Calipers 2026-08-11; fan included in H. Bay clearance +~3 mm sides, +~4 mm depth. Photo: `Models/PIinBod1.jpeg` |
 | esp32 | ESP32-WROOM dev board | 55 | 28 | 13 | USB end open for flash |
 | max9814 | Mic AGC board | | | | Ear recess; ×2 |
 | spk_3w | Speaker 3 W 8 Ω | | | | Grill Ø; ×4 available |
@@ -30,7 +30,9 @@ Measure the **as-built kit** (including headers, USB jacks, battery pouch, CanaK
 | Feature | Target (mm) |
 |---------|-------------|
 | Wall thickness (structural) | 1.6–2.0 |
-| Pi airflow gap above SoC/area | ≥ 8 |
+| Pi kit airflow (fan face free) | ≥ 4 mm clear in front of fan; rear vent preferred |
+| Charge / power exit | **Right side near torso base** (user 2026-08-11) |
+| Pi airflow gap above SoC/area | ≥ 8 (bare board); kit uses top fan |
 | Neck cable trunk ID | ≥ 12–15 |
 | Screw insert (M3) | per insert datasheet |
 | Mic port acoustic opening | ≥ board hole; foam optional later |
@@ -46,7 +48,8 @@ Measure the **as-built kit** (including headers, USB jacks, battery pouch, CanaK
 
 ## Measurement checklist
 
-- [ ] Pi 5 (board and/or full CanaKit)  
+- [x] Pi 5 full CanaKit envelope (93.77 × 63.02 × 30.45) — 2026-08-11  
+- [ ] Pi 5 board-only (optional)  
 - [ ] One ESP32 board  
 - [ ] Both MAX9814 boards  
 - [ ] One speaker + one amp  

@@ -1,7 +1,8 @@
 # Embodi Scaffold Shell — Blender + P2S Staged Prints
 
-**Status**: Active plan (Phase 0)  
-**Date**: 2026-08-03  
+**Status**: Active plan (Phase 1 master scene live)  
+**Date**: 2026-08-03 (updated 2026-08-10)  
+
 **BOM source**: `I:\GrokBuild\Parts.md`  
 **Printer**: Bambu Lab **P2S** — build volume **256 × 256 × 256 mm**  
 **Software**: Embodi unchanged (Pi = host; shell is mechanical only)
@@ -141,20 +142,15 @@ Reuse as reference (ghost) in master blend:
 - `Models/Head_Main*.stl`, `HeadMod.stl`, `HeadMinus.blend`
 - `Models/Torso_Front*.stl`, `Torso_Back*.stl`, `TFrontMod.*`, `TBackMod.stl`
 
-Master file (target): `Models/embodi_scaffold_v1.blend`
+Master file (current): `Models/embodi_scaffold_v2.blend` — clean organic humanoid (v1 + boolean legacy REF archived; not form source).
 
 ---
 
-## 6. Blender MCP (Phase 0)
+## 6. Blender MCP (Phase 0) — **DONE**
 
-Not yet in project MCP config. Before agent-driven modeling:
+Live via **Blender Lab MCP** (`blmcp` + add-on TCP **9876**). Setup notes: `Models/BLENDER_MCP_SETUP.md`.
 
-1. Install Blender 4.x LTS.  
-2. Install Blender MCP bridge/addon.  
-3. Register server in Grok config; restart session.  
-4. Document exact commands in `Models/BLENDER_MCP_SETUP.md`.
-
-Until MCP is live: measure + docs + manual Blender; same stage list.
+Smoke: `mcp_smoke` 20 mm cube → `Models/print/_smoke_cube.stl`.
 
 ---
 
@@ -173,13 +169,26 @@ Until MCP is live: measure + docs + manual Blender; same stage list.
 
 ## 8. Phases checklist
 
-- [ ] **0** Blender MCP setup + caliper measurements  
-- [ ] **1** Master scene + bay blocks (mm)  
-- [ ] **2** Head shell + **featured ear cups (directionality)** + ESP32 + latch points  
+- [x] **0** Blender MCP setup (+ smoke); caliper measurements still open  
+- [x] **1** Master scene + bay blocks (mm) — v1 then **clean organic v2**  
+- [x] **1b** Clean form language: `Models/embodi_scaffold_v2.blend` (ellipsoids→remesh, not boolean boxes)  
+- [ ] **2** Head shell thickness/cavity + ear refine + ESP32 cradle + latch points  
 - [ ] **3** Torso front/back + Pi + battery + **seam latches**  
 - [ ] **4** Lids, grills, neck ring, service-door latch  
 - [ ] **5** P2S print + dry-fit + iterate  
 - [ ] **6** Zone name map to Embodi (later)
+
+### Phase 1 scene map (2026-08-10)
+
+| Collection | Contents |
+|------------|----------|
+| `REF_legacy` | Wire `Head_Main_v02`, `Torso_Front_v02`, `Torso_Back_v02` (mm) |
+| `BAYS` | `bay_pi_torso`, `bay_battery`, `bay_charge`, `bay_esp32_head`, `bay_mic_L/R`, `bay_neck_trunk`, `bay_imu_head` |
+| `SHELL` | `shell_ear_L/R` pinna stubs (Phase 2 sculpt start) |
+| `PRINT_STAGES` | Stage envelope wires (head / torso front / torso back) |
+| `META` | `P2S_envelope_250`, `ORIGIN_mm`, hidden `mcp_smoke` |
+
+**Layout:** head lifted onto neck gap (~18 mm) above torso top so assembly reads full-body. Full height ~380 mm → print **stages only**. Bay sizes are BOM **placeholders** until calipers freeze `BOM_MEASUREMENTS.md`.
 
 ---
 

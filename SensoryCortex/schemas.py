@@ -7,9 +7,12 @@ raw sensors. Rich fields from the coherence layer are preserved when present.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
+
+if TYPE_CHECKING:
+    from .activation_pattern import ActivationPatternV0
 
 
 class AffectiveCore(BaseModel):
@@ -60,6 +63,8 @@ class SensoryUpdate(BaseModel):
     token_estimate: int = 0
     source: str = "sensory_cortex"
     detail_level: str = "normal"
+    # Body-native feel channel (v0); dual with NL sensations — see activation_pattern.py
+    activation_pattern: Optional[Dict[str, Any]] = None
 
 
 # Backward-compatible alias used briefly in early drafts

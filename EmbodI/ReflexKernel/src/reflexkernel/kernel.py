@@ -195,21 +195,11 @@ class ReflexKernel:
         # 1. Collect real + injected stimuli
         stimuli: StimulusBatch = self.perception.collect_all()
 
-        # Normalize extra_stimuli.
-        # The abstraction layer's to_stimuli() returns List[dict], while
-        # perception and internal paths return List[Stimulus].
-        # We accept both for flexibility when driving from virtual abstraction or Saddle.
+        # Normalize extra_stimuli (abstraction to_stimuli() → dicts; API → Stimulus).
+        from .types import normalize_stimuli
+
         if extra_stimuli:
-            for item in extra_stimuli:
-                if isinstance(item, dict):
-                    stimuli.append(Stimulus.from_dict(item))
-                elif isinstance(item, Stimulus):
-                    stimuli.append(item)
-                else:
-                    try:
-                        stimuli.append(Stimulus.from_dict(item))
-                    except Exception:
-                        pass
+            stimuli.extend(normalize_stimuli(list(extra_stimuli)))
 
         for s in stimuli:
             log_stimulus(self.logger, s)

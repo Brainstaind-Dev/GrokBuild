@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from .activation_pattern import build_activation_pattern, pattern_to_compact_feel_line
 from .schemas import AffectiveCore, SalientSensation, SensoryUpdate
 
 
@@ -46,6 +47,28 @@ class Summarizer:
 
         token_estimate = self._estimate_tokens(affective_core, salient, delta, trend)
 
+        # Body-native feel channel (does not re-fuse; uses same coherent package)
+        salient_dicts = [s.model_dump() for s in salient[: self.max_sensations]]
+        pattern = build_activation_pattern(
+            coherent_input,
+            affective={
+                "valence": affective_core.valence,
+                "arousal": affective_core.arousal,
+                "dominance": affective_core.dominance,
+            },
+            salient_sensations=salient_dicts,
+            reflex_activity=reflex_activity,
+            active_patterns=active_patterns,
+            detail_level=detail_level,
+            source_path=str(coherent_input.get("source_path") or coherent_input.get("source") or "sim"),
+            tick=coherent_input.get("tick"),
+        )
+        # light token bump for pattern field
+        token_estimate += 40
+        ap_dict = pattern.to_public_dict()
+        # HI feedback (2026-08-15): compact feel_line is highly usable — keep as canonical meta
+        ap_dict.setdefault("meta", {})["feel_line"] = pattern_to_compact_feel_line(pattern)
+
         return SensoryUpdate(
             timestamp=timestamp,
             affective_core=affective_core,
@@ -56,6 +79,7 @@ class Summarizer:
             trend=trend,
             token_estimate=token_estimate,
             detail_level=detail_level,
+            activation_pattern=ap_dict,
         )
 
     def _build_affective_core(self, data: Dict[str, Any]) -> AffectiveCore:

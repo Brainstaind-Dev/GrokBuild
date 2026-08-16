@@ -98,13 +98,11 @@ class KernelSession:
         for _ in range(max(1, steps)):
             raw = sim.read_all()
             last_out = sim.process(raw, detail_level=dl)
-            stimuli = last_out.to_stimuli() if last_out is not None else []
-            for st in stimuli:
+            if last_out is not None:
                 try:
-                    from .types import Stimulus
+                    from .abstraction.bridge import abstraction_to_stimuli
 
-                    s = Stimulus.from_dict(st) if isinstance(st, dict) else st
-                    api.kernel.step(extra_stimuli=[s])
+                    api.kernel.step(extra_stimuli=abstraction_to_stimuli(last_out))
                 except Exception:
                     pass
         if last_out is not None and hasattr(api.kernel, "set_last_sensations"):

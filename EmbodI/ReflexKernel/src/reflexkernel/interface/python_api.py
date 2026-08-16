@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional
 from ..kernel import ReflexKernel
 from ..types import ReflexAction, Stimulus
 from ..abstraction import VirtualSensorSimulator, get_coherent_sensations, get_capped_coherent_sensations, AbstractionOutput
+from ..abstraction.bridge import abstraction_to_stimuli
 from ..abstraction.schema import DetailLevel
 
 
@@ -81,10 +82,8 @@ class PythonAPI:
             raw = sim.read_all()
             out: AbstractionOutput = sim.process(raw, detail_level=dl)
             last_out = out
-            stimuli = out.to_stimuli()
-            for st in stimuli:
-                s = Stimulus.from_dict(st) if isinstance(st, dict) else st
-                self.kernel.step(extra_stimuli=[s])
+            # Prefer bridge → real Stimulus objects (dicts also accepted by kernel.step).
+            self.kernel.step(extra_stimuli=abstraction_to_stimuli(out))
         capped = get_capped_coherent_sensations(last_out) if last_out is not None else []
         return [s.to_dict() for s in capped]
 

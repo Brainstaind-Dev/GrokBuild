@@ -18,6 +18,12 @@ from .schemas import (
     SalientStimulus,
     SensoryUpdate,
 )
+from .activation_pattern import (
+    ActivationPatternV0,
+    build_activation_pattern,
+    pattern_to_compact_feel_line,
+    SCHEMA_VERSION as ACTIVATION_PATTERN_SCHEMA_VERSION,
+)
 from .config import (
     InterfaceConfig,
     MemoryConfig,
@@ -41,4 +47,8 @@ __all__ = [
     "MemoryConfig",
     "TranslatorConfig",
     "InterfaceConfig",
+    "ActivationPatternV0",
+    "build_activation_pattern",
+    "pattern_to_compact_feel_line",
+    "ACTIVATION_PATTERN_SCHEMA_VERSION",
 ]

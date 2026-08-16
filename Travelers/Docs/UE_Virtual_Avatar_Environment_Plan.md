@@ -25,6 +25,8 @@ This document is the reference plan for when we are ready to implement that rout
 
 **Embodi stands as it is.** Unreal does **not** replace ReflexKernel, Sensory Cortex, Saddle, or HIAgent.
 
+**Dual stimulus paths (locked 2026-08-15):** ReflexKernel runs **only** in the Embodi main suite. A UE-rigged avatar may (1) **visualize** RK/Cortex state and (2) **emit virtual stimuli** into RK (contacts, motion, environment). Physical sensors remain a parallel path into the same RK inject/perception contracts. Two sources, one nervous system.
+
 | System | Role |
 |--------|------|
 | **Embodi** (`EmbodI/ReflexKernel`, `SensoryCortex`, `HIAgent`, Saddle) | Nervous system, coherence/felt packages, learning, hardware/sim sensors, HI mind tools |

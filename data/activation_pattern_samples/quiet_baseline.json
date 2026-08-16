@@ -1,0 +1,75 @@
+{
+  "scenario": "quiet_baseline",
+  "dumped_at": "2026-08-16T02:46:02.634930+00:00",
+  "feel_line": "feel: arousal=0.28 valence=0.10 whole_body=0.15 autonomic=0.65 breath_depth=0.59 dom=whole_body",
+  "mood": "calm_receptive",
+  "delta_from_last": "stable",
+  "activation_pattern": {
+    "schema_version": "activation_pattern_v0",
+    "ts": 1786848362.6347928,
+    "tick": 100,
+    "source_path": "sim",
+    "global": {
+      "arousal": 0.28,
+      "valence": 0.1,
+      "dominance": 0.55,
+      "urgency": 0.14
+    },
+    "zones": {
+      "head": 0.0,
+      "ear_L": 0.0,
+      "ear_R": 0.0,
+      "face": 0.0,
+      "neck_throat": 0.0,
+      "chest": 0.0,
+      "solar_plexus": 0.0,
+      "torso_back": 0.0,
+      "torso_front": 0.0,
+      "shoulders": 0.0,
+      "whole_body": 0.15
+    },
+    "reflexes": {
+      "flinch": 0.0,
+      "orient": 0.0,
+      "freeze": 0.0,
+      "tension": 0.0,
+      "blink": 0.0,
+      "relax": 0.0,
+      "micro_expression": 0.0,
+      "autonomic": 0.65,
+      "jaw_clench": 0.0,
+      "shoulder_elevation": 0.0,
+      "breath_depth": 0.59085,
+      "custom": 0.0
+    },
+    "salience": {
+      "dominant_zone": "whole_body",
+      "dominant_reflex": "autonomic",
+      "active_pattern_ids": []
+    },
+    "meta": {
+      "detail_level": "normal",
+      "producer": "sensory_cortex",
+      "pattern_rev": "0.1",
+      "feel_line": "feel: arousal=0.28 valence=0.10 whole_body=0.15 autonomic=0.65 breath_depth=0.59 dom=whole_body"
+    }
+  },
+  "salient_sensations": [
+    {
+      "description": "soft ambient body tone",
+      "zone": "whole_body",
+      "intensity": 0.15,
+      "valence": 0.1,
+      "arousal_contribution": 0.1,
+      "novelty": 0.2,
+      "category": null,
+      "temporal_quality": null,
+      "texture_qualities": [],
+      "movement_quality": null,
+      "arousal_modulated_richness": 0.12,
+      "zone_character": null,
+      "confidence": 0.8,
+      "composition_notes": []
+    }
+  ]
+}
