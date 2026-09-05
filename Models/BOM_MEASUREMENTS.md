@@ -9,7 +9,9 @@ Measure the **as-built kit** (including headers, USB jacks, battery pouch, CanaK
 | ID | Component | L | W | H | Notes / clearance needed |
 |----|-----------|---|---|---|---------------------------|
 | pi5 | Pi 5 board only | 85 | 56 | 17 | Official approx; prefer kit envelope |
-| pi5_kit | CanaKit case + fan (as built) | **93.77** | **63.02** | **30.45** | Calipers 2026-08-11; fan included in H. Bay clearance +~3 mm sides, +~4 mm depth. Photo: `Models/PIinBod1.jpeg` |
+| pi5_kit | CanaKit case + fan (as built) | **93.77** | **63.02** | **30.45** | Calipers 2026-08-11; fan included in H. Photo: `Models/PIinBod1.jpeg` |
+| pi5_kit_open | CanaKit **base + board, fan lid OFF** | **93.77** | **63.02** | **~19** (opening depth) | Lid-off. GPIO on open face. USB-C+HDMI long wall; ETH/USB short; SD other short. Photos `Cana1`–`Cana9`. |
+| canakit_fan | CanaKit 30 mm fan | **30** | **30** | **7.38** | Lead **63.92 mm**. Body-mounted on inner back; not on lid. |
 | esp32 | ESP32-WROOM dev board | 55 | 28 | 13 | USB end open for flash |
 | max9814 | Mic AGC board | | | | Ear recess; ×2 |
 | spk_3w | Speaker 3 W 8 Ω | | | | Grill Ø; ×4 available |

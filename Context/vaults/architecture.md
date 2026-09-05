@@ -22,6 +22,10 @@ Higher intelligence uses **Interface** (Python API, stdio JSON-lines, WebSocket/
 - **Stimuli** — low-latency reflex path  
 - **Sensations** — HI-facing packaged experience (`/api/v1/experience`, `kernel.get_last_sensations()`)
 
+## Tick-Door (A, 2026-09-04)
+
+Physical feel enters on `kernel.step` via `HardwareSensor` + deterministic `extract_tier1`. Missing hardware **fail_open** (empty poll). One live process, **one** `VirtualSensorSimulator` (PythonAPI/Saddle match MCP). Not AfferentBus. Not D0.
+
 ## Dual path (stimulus sources → RK)
 
 ReflexKernel lives **only** in the Embodi main suite. It does **not** run inside Unreal.

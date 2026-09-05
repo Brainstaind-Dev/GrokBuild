@@ -44,11 +44,20 @@ class AudioConfig(BaseModel):
     energy_threshold: float = 0.02
 
 
+class HardwarePerceptionConfig(BaseModel):
+    """Tick-Door seat. Missing bus/chip must fail_open (empty poll)."""
+
+    enabled: bool = False
+    fail_open: bool = True
+    fsr_threshold: float = 0.0
+
+
 class PerceptionConfig(BaseModel):
     enabled_sensors: List[str] = Field(default_factory=lambda: ["simulation"])
     simulation: SimulationConfig = Field(default_factory=SimulationConfig)
     vision: VisionConfig = Field(default_factory=VisionConfig)
     audio: AudioConfig = Field(default_factory=AudioConfig)
+    hardware: HardwarePerceptionConfig = Field(default_factory=HardwarePerceptionConfig)
 
 
 class FusionConfig(BaseModel):

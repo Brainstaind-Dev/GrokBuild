@@ -1,7 +1,7 @@
 # NOW — hot status
 
-**Updated:** 2026-08-15  
-**Active fuse:** Night stop — pattern **v0.1** (HI wishlist folded); scaffold print ~6h on plate; dry-fit tomorrow.
+**Updated:** 2026-09-04  
+**Active fuse:** **Tick-Door A + One-Body green** on GrokBuild. Next: B Pad-Read (or C Feel-Mind). D0 does not gate A.
 
 ## Snapshot
 
@@ -12,14 +12,14 @@
 | HIAgent | Embedded + Saddle; Pi + desktop smoke OK | `HIAgent/` |
 | Pi | Git-only standup; kernel + HIAgent once | `scripts/pi/`, vault `pi-hardware` |
 | Blender MCP | Live (Lab MCP, mcp 1.x pin, port 9876) | vault `blender-mcp` |
-| Scaffold | Print plate **in progress**; bed STLs single-body | `Models/print/print_bed_*.stl` |
+| Scaffold | Torso back printed + CanaKit seated | `Models/81726Back*.jpeg`, `print_bed_torso_back.stl` |
 | UE avatar | Dual stimuli locked: real + virtual → RK (Embodi only); UE = theater + viz | vault `architecture` + UE plan |
 
 ## Open / next
 
-1. **Tomorrow:** dry-fit `print_bed_torso_back` + CanaKit when plate finishes (~6h)  
-2. Optional AP-5: HIAgent always logs `activation_pattern`  
-3. Later: UE dual-stimuli, limbs, ESP32/mics  
+1. Re-print **torso back** — interior rails + body fan pocket + USB-C on +X  
+2. Confirm 64 mm fan lead reaches header; GPIO from open face  
+3. Optional AP-5: HIAgent logs `activation_pattern`  
 
 ## Do not re-litigate
 

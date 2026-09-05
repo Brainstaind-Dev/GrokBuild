@@ -28,8 +28,13 @@ from ..abstraction.schema import DetailLevel
 class PythonAPI:
     """Thin, friendly wrapper around the kernel for direct use by Python agents."""
 
-    def __init__(self, kernel: ReflexKernel) -> None:
+    def __init__(
+        self,
+        kernel: ReflexKernel,
+        virtual_sim: Optional[VirtualSensorSimulator] = None,
+    ) -> None:
         self.kernel = kernel
+        self._virtual_sim = virtual_sim
 
     def start(self) -> None:
         self.kernel.start()
@@ -69,14 +74,20 @@ class PythonAPI:
     def command(self, cmd: Dict[str, Any]) -> Dict[str, Any]:
         return self.kernel.command(cmd)
 
+    def ensure_virtual_sim(self) -> VirtualSensorSimulator:
+        """One-Body: one VirtualSensorSimulator per API / live process."""
+        if self._virtual_sim is None:
+            self._virtual_sim = VirtualSensorSimulator()
+        return self._virtual_sim
+
     def get_coherent_sensations(self, detail_level: str = "normal", steps: int = 1) -> list:
         """Return richer coherent sensations (default NORMAL detail to avoid overload for HI).
 
         Prominent dedicated method for Saddle/HI path. Returns capped list (MAX_SENSATIONS_FOR_HI) with full rich fields (description, arousal_modulated_richness, etc).
-        Always drive from clean virtual + bridge for testability.
+        Drives the *shared* virtual sim (never a new one per poll).
         """
         dl = DetailLevel(detail_level) if detail_level in ("normal", "enhanced", "diagnostic") else DetailLevel.NORMAL
-        sim = VirtualSensorSimulator()
+        sim = self.ensure_virtual_sim()
         last_out = None
         for _ in range(max(1, steps)):
             raw = sim.read_all()
@@ -84,18 +95,23 @@ class PythonAPI:
             last_out = out
             # Prefer bridge → real Stimulus objects (dicts also accepted by kernel.step).
             self.kernel.step(extra_stimuli=abstraction_to_stimuli(out))
+        if last_out is not None:
+            self.kernel.set_last_abstraction(last_out)
+            if hasattr(self.kernel, "set_last_sensations"):
+                self.kernel.set_last_sensations(list(last_out.sensations or []), max_count=3)
         capped = get_capped_coherent_sensations(last_out) if last_out is not None else []
         return [s.to_dict() for s in capped]
 
     def get_body_state(self, detail_level: str = "normal") -> dict:
         """Return enhanced body state summary (default NORMAL; primary lightweight view to avoid overload).
 
-        Richer sensations context is available via get_coherent_sensations.
+        Uses the shared sim + last drive when present (One-Body). Does not mint a twin.
         """
         dl = DetailLevel(detail_level) if detail_level in ("normal", "enhanced", "diagnostic") else DetailLevel.NORMAL
-        sim = VirtualSensorSimulator()
+        sim = self.ensure_virtual_sim()
         raw = sim.read_all()
         out: AbstractionOutput = sim.process(raw, detail_level=dl)
+        self.kernel.set_last_abstraction(out)
         summary = out.state_summary.to_dict() if out.state_summary else {}
         summary["detail_level"] = dl.value
         return summary

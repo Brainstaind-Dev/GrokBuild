@@ -69,6 +69,7 @@ class ReflexKernel:
         self._running = False
         self._last_tick_time = 0.0
         self._last_sensations: List[Any] = []  # set by interface when driving abstraction from Saddle inputs
+        self._last_abstraction: Any = None  # last AbstractionOutput (One-Body cache)
 
         # Layers (populated in _init_layers)
         self.perception: Any = None
@@ -121,6 +122,23 @@ class ReflexKernel:
                 self.logger.info("Audio sensor registered")
         except Exception as e:
             self.logger.warning("Audio sensor unavailable: %s", e)
+
+        # Tick-Door: HardwareSensor on the tick (fail_open). No board required.
+        try:
+            hw_cfg = getattr(self.cfg.perception, "hardware", None)
+            hw_enabled = bool(hw_cfg and getattr(hw_cfg, "enabled", False))
+            if hw_enabled or "hardware" in self.cfg.perception.enabled_sensors:
+                from .perception.hardware_sensor import HardwareSensor
+
+                hw_dict = (
+                    hw_cfg.model_dump()
+                    if hw_cfg is not None and hasattr(hw_cfg, "model_dump")
+                    else {"fail_open": True, "fsr_threshold": 0.0}
+                )
+                registry.register("hardware", HardwareSensor(hw_dict))
+                self.logger.info("HardwareSensor registered (Tick-Door, fail_open=%s)", hw_dict.get("fail_open", True))
+        except Exception as e:
+            self.logger.warning("HardwareSensor unavailable: %s", e)
 
         self.perception = registry
 
@@ -330,6 +348,13 @@ class ReflexKernel:
         except (TypeError, ValueError):
             max_n = 3
         self._last_sensations = list(sensations or [])[:max_n]
+
+    def set_last_abstraction(self, out: Any) -> None:
+        """One-Body: cache last AbstractionOutput so polls do not mint a twin sim."""
+        self._last_abstraction = out
+
+    def get_last_abstraction(self) -> Any:
+        return getattr(self, "_last_abstraction", None)
 
     # ------------------------------------------------------------------
     # Lightweight event emission for remote interfaces (WebSocket etc.)

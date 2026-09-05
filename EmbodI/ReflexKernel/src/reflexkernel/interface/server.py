@@ -234,7 +234,7 @@ def create_app(
         from reflexkernel.interface.python_api import PythonAPI as _PyAPI
 
         _cortex_holder["cortex"] = try_create_cortex(
-            mode="embedded", bind_api=_PyAPI(kernel)
+            mode="embedded", bind_api=_PyAPI(kernel, virtual_sim=virtual_sim)
         )
         if _cortex_holder["cortex"] is not None:
             logger.info("Sensory Cortex attached to Saddle (embedded mode)")
@@ -293,6 +293,8 @@ def create_app(
                 kernel.set_last_sensations(list(last_out.sensations or []), max_count=3)
             else:
                 kernel._last_sensations = list(last_out.sensations or [])[:3]
+            if hasattr(kernel, "set_last_abstraction"):
+                kernel.set_last_abstraction(last_out)
             _feed_cortex(last_out)
         return last_out  # caller can use the sensations if desired
 
@@ -474,20 +476,18 @@ def create_app(
         """
         state = kernel.get_state()
         dl = DetailLevel(detail_level) if detail_level in ("normal", "enhanced", "diagnostic") else DetailLevel.NORMAL
-        # Use the shared virtual_sim (driven by interface inputs) so sensations reflect
-        # signals received via the Saddle. Drive once on query to keep fresh.
+        # One-Body: consume drive return. Never mint a twin VirtualSensorSimulator.
+        out = None
         try:
             _drive = app.state._drive_abstraction_and_feed
-            _drive(1)
+            out = _drive(1)
         except Exception:
-            pass
-        sim = app.state.virtual_sim or VirtualSensorSimulator()
-        raw = sim.read_all()
-        out: AbstractionOutput = sim.process(raw, detail_level=dl)
-        # Use shared capped getter for overload safeguard + prominent richer output
-        capped = get_capped_coherent_sensations(out)
+            out = getattr(kernel, "get_last_abstraction", lambda: None)()
+        if out is None:
+            out = getattr(kernel, "get_last_abstraction", lambda: None)()
+        capped = get_capped_coherent_sensations(out) if out is not None else []
         sensations = [s.to_dict() for s in capped]
-        summary = out.state_summary.to_dict() if out.state_summary else {}
+        summary = out.state_summary.to_dict() if out is not None and out.state_summary else {}
         summary["detail_level"] = dl.value
         resp = StateResponse(**state)
         resp.sensations = sensations
@@ -507,20 +507,18 @@ def create_app(
         Sensations are capped.
         """
         dl = DetailLevel(detail_level) if detail_level in ("normal", "enhanced", "diagnostic") else DetailLevel.NORMAL
-        # Use shared sim so sensations are consistent with those driven by Saddle inputs.
-        # Drive on query to ensure up-to-date with any recent interface activity.
+        # One-Body: consume drive return. Never mint a twin sim on GET.
+        out = None
         try:
             _drive = app.state._drive_abstraction_and_feed
-            _drive(1)
+            out = _drive(1)
         except Exception:
-            pass
-        sim = app.state.virtual_sim or VirtualSensorSimulator()
-        raw = sim.read_all()
-        out: AbstractionOutput = sim.process(raw, detail_level=dl)
-        # Use shared capped getter for overload safeguard + prominent richer output
-        capped = get_capped_coherent_sensations(out)
+            out = getattr(kernel, "get_last_abstraction", lambda: None)()
+        if out is None:
+            out = getattr(kernel, "get_last_abstraction", lambda: None)()
+        capped = get_capped_coherent_sensations(out) if out is not None else []
         sensations = [s.to_dict() for s in capped]
-        summary = out.state_summary.to_dict() if out.state_summary else {}
+        summary = out.state_summary.to_dict() if out is not None and out.state_summary else {}
         summary["detail_level"] = dl.value
         return SensationsResponse(detail_level=dl.value, sensations=sensations, state_summary=summary)
 

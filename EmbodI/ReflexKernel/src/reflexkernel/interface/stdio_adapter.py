@@ -39,6 +39,7 @@ class StdioAdapter:
         self.detail_level = DetailLevel(detail_level) if detail_level in ("normal", "enhanced", "diagnostic") else DetailLevel.NORMAL
         self._in = sys.stdin
         self._out = sys.stdout
+        self._virtual_sim: Optional[VirtualSensorSimulator] = None
 
     def send(self, obj: Dict[str, Any]) -> None:
         line = json.dumps(obj, default=str)
@@ -73,7 +74,9 @@ class StdioAdapter:
                 # Also push current state on every command (cheap for teaching loops), enriched with richer sensations at detail_level
                 try:
                     st = self.kernel.get_state()
-                    sim = VirtualSensorSimulator()
+                    if self._virtual_sim is None:
+                        self._virtual_sim = VirtualSensorSimulator()
+                    sim = self._virtual_sim
                     raw = sim.read_all()
                     out = sim.process(raw, detail_level=self.detail_level)
                     capped = get_capped_coherent_sensations(out)

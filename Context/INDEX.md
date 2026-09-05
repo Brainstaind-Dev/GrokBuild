@@ -13,6 +13,7 @@ Read **`NOW.md`** first. Then open **only** the vault(s) for the active task.
 | Locked product/process decisions | `vaults/decisions.md` | — |
 | Commands, paths, smoke rituals | `vaults/ops.md` | `AGENTS.md` |
 | Activation patterns (HI feel channel) | `NOW.md` + plan | `Travelers/Docs/Activation_Pattern_Contract_v0_Plan.md` |
+| Minds meet (architecture papers) | Crosstalk | https://github.com/Brainstaind-Dev/Crosstalk — start at `INDEX.md` |
 
 ## Load budget (token hygiene)
 

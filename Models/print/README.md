@@ -71,6 +71,38 @@ You should **not** need to rotate in Bambu (supports may still be suggested).
 5. Ears L/R  
 6. Iterate clearances with calipers → update `BOM_MEASUREMENTS.md`
 
+## Pi seat + body fan — drawer v4 (2026-08-17)
+
+Rebuild **from clean base** (v3 had stacked charge cuts + a full back-stop wall over the fan).
+
+| | |
+|--|--|
+| Insertion | Slide from seam toward fan; **no front lip** |
+| Rails | Side L-channels only |
+| Stops | **Four corner tabs** at the back — **center open** so the fan vent is not blocked |
+| Fan | One 30 mm vent through the back; clips left/right of the hole only |
+| Charge | **One** +X oval (z≈42, y≈−20). Old extra hole discarded with the clean rebuild |
+
+**Verify:** fan axis 0 blocking verts; 1 charge tube; slide/mouth empty; no back pierce.
+
+Re-slice `print_bed_torso_back.stl`.
+
+## Pi seat (2026-08-17 dry-fit)
+
+First print: kit **floated** — thumb held it (`Models/81726BackFrontFacing.jpeg`).
+
+**Now:** chunky **angle-iron L-rails** unioned into `print_bed_torso_back.stl` (single body).
+
+| | |
+|--|--|
+| Footprint | 93.77 × 63.02 mm, **0.5 mm** snug per side |
+| Stack | **~20 mm Y** — **CanaKit fan lid OFF** (GPIO / headers face the open cavity) |
+| Seat | L-rails along both long edges + X end stops + seam lip (won’t fall out when open) |
+| Fan window | **Removed** (lid comes off for wiring; fan position TBD). One small rear vent only |
+| Charge | Oval, right base — unchanged |
+
+Re-slice **`print_bed_torso_back.stl`** only for the next fit.
+
 ## Pi kit freeze (2026-08-11)
 
 | | mm |

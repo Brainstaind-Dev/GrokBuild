@@ -71,9 +71,10 @@ See `Models/print/README.md`.
 ### Pi kit (calipers 2026-08-11)
 
 - CanaKit: **93.77 × 63.02 × 30.45** mm (L×W×H, fan in H)  
-- Charge exit: **right side, near torso base** (clean oval port)  
-- Photo: `Models/PIinBod1.jpeg`  
-- Pre-print cleanup: rounded Pi pocket, mesh repair (0 zero-area), dowel holes + `print_hw_dowel_*`  
+- **Seat:** Interior L-rails only (do **not** pass through to bed). Snug +0.5 mm  
+- **Fan:** 30×30×7.38, wire 63.92 mm — **mounted on body**, Cana lid stays off  
+- **Ports (Cana1–9):** USB-C+HDMI long wall → +X charge; GPIO/open toward seam; ETH/USB and SD on shorts  
+- Photos: `Cana1`–`Cana9`, `81726Back*.jpeg`
 - **Print:** `Models/print/print_bed_*.stl` only  
 
 

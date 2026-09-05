@@ -6,9 +6,11 @@ Public surface:
 """
 
 from .base import Sensor, SensorRegistry
+from .extract_tier1 import extract_tier1
+from .hardware_sensor import HardwareSensor
 from .simulation import SimulationSensor
 
-__all__ = ["Sensor", "SensorRegistry", "SimulationSensor"]
+__all__ = ["Sensor", "SensorRegistry", "SimulationSensor", "HardwareSensor", "extract_tier1"]
 
 # Optional re-exports (will succeed only when deps present)
 try:
