@@ -31,6 +31,15 @@ def build_xai_tools() -> List[Any]:
             },
         ),
         tool(
+            name="read_house",
+            description=(
+                "Optional. Read the House Spine (HIAgent/house/spine.md) only. "
+                "Not required at knock. Call if you want the long house notes. "
+                "Do not recite them into chat. No other files."
+            ),
+            parameters={"type": "object", "properties": {}, "required": []},
+        ),
+        tool(
             name="body_snapshot",
             description=(
                 "Broader kernel state snapshot (tick, context, actions, "

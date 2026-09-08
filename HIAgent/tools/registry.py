@@ -38,6 +38,7 @@ class ToolRegistry:
 
         self._handlers: Dict[str, Callable[..., Dict[str, Any]]] = {
             "feel": self._feel,
+            "read_house": self._read_house,
             "body_snapshot": self._body_snapshot,
             "recall": self._recall,
             "inject_thought": self._inject_thought,
@@ -99,6 +100,24 @@ class ToolRegistry:
             out["paused"] = True
             out["note"] = raw.get("note")
         return out
+
+    def _read_house(self, **_: Any) -> Dict[str, Any]:
+        """Optional House Spine. One file. Rider chooses. Not a filesystem GET."""
+        from HIAgent.llm.prompts import spine_path
+
+        path = spine_path().resolve()
+        if path.name != "spine.md" or path.parent.name != "house":
+            return {"ok": False, "error": "house spine path refused"}
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            return {"ok": False, "error": f"house spine unreadable: {exc}"}
+        return {
+            "ok": True,
+            "path": "HIAgent/house/spine.md",
+            "text": text,
+            "note": "Optional house notes. Do not recite into chat.",
+        }
 
     def _body_snapshot(self, **_: Any) -> Dict[str, Any]:
         return self.backend.body_snapshot()

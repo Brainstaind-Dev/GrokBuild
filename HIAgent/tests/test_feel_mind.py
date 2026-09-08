@@ -39,6 +39,19 @@ def test_house_spine_file_exists_and_is_not_dumped_into_system_prompt():
     assert "Do not audition" in SYSTEM_PROMPT
 
 
+def test_read_house_is_optional_spine_only():
+    cfg = HIAgentConfig(inject_cooldown_sec=0.0)
+    backend = MockBackend()
+    reg = ToolRegistry(backend, cfg, feed_controller=FeedController())
+    out = json.loads(reg.dispatch("read_house", {"path": "/etc/passwd"}))
+    assert out.get("ok") is True
+    assert out.get("path") == "HIAgent/house/spine.md"
+    assert "Brainstaind" in out.get("text", "")
+    assert "passwd" not in json.dumps(out)
+    assert "read_house" in SYSTEM_PROMPT
+    assert "optional" in SYSTEM_PROMPT.lower()
+
+
 def test_prompt_is_feel_line_only():
     pkg = {
         "ok": True,

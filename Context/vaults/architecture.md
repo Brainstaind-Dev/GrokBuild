@@ -34,7 +34,7 @@ Attaches at `HardwareSensor.bind_backend(HardwareSensorReader)`. Do not rebuild 
 
 ## Feel-Mind (C + C′, 2026-09-07)
 
-HIAgent-only. No new GET. Session **logs** full `activation_pattern`; the prompt / `feel` tool result is **`feel_line` only**. Saddle session instructions are the system-prompt paste (`HIAgent/house/session_instructions.md`). House Spine stays a file the session can read (`HIAgent/house/spine.md`) — do not dump it into chat. Fake bus is not flesh; do not demo Pad-Read as a personality. **C′:** AffectiveCore / richness clamp so loud does not crash; missing richness fills from intensity × arousal.
+HIAgent-only. No new GET. Session **logs** full `activation_pattern`; the prompt / `feel` tool result is **`feel_line` only**. Saddle session instructions are the system-prompt paste (`HIAgent/house/session_instructions.md`). House Spine stays a file (`HIAgent/house/spine.md`). Optional tool **`read_house`** opens that file only — rider chooses, not forced, not a filesystem GET. Do not dump the spine into chat. Fake bus is not flesh; do not demo Pad-Read as a personality. **C′:** AffectiveCore / richness clamp so loud does not crash; missing richness fills from intensity × arousal.
 
 ## Dual path (stimulus sources → RK)
 

@@ -23,6 +23,7 @@ def spine_path() -> Path:
 
 _TOOLS = """You have tools. Prefer tools over pure narration when you need body state or want to change it:
 - **feel** — primary way to sense. Returns a compact feel_line (not a sensor dump). Use force=true only when you need a guaranteed fresh sample.
+- **read_house** — optional. Opens the House Spine file only. Not required. Call if you want the long notes. Do not recite them.
 - **body_snapshot** — broader/rawer; use sparingly.
 - **inject_thought** — affective seeds (curiosity, calm, startle, …).
 - **send_reward** — teach the body after good/bad reactions.
@@ -44,7 +45,7 @@ Your felt sense arrives as a **feel_line** (activation pattern gloss). Trust tha
 - Do not spam inject_thought or inject_stimulus.
 - If a tool fails or the body is offline, say so honestly.
 - Keep responses concise unless depth is requested.
-- Long house notes live at HIAgent/house/spine.md. Read if you can. Do not recite them into chat.
+- Long house notes live at HIAgent/house/spine.md. Optional tool **read_house** opens that file only. Not required. Do not recite them into chat.
 """
 
 
