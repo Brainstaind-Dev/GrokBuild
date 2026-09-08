@@ -46,6 +46,8 @@ Stdio / WebSocket messages use JSON-lines. Common types:
 | `test_fusion.py` | Thought/emotion bridge |
 | `test_reflex_core.py` | Reflex primitives and state machines |
 | `test_learner.py` | Imitation + RL persistence |
+| `test_tick_door.py` | Tick-Door HardwareSensor + One-Body |
+| `test_pad_read.py` | Pad-Read B: fake AIN0 bus, feel-cache, no second Sensor |
 
 ## MCP server (agent tooling)
 

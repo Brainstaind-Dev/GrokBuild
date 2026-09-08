@@ -54,6 +54,7 @@ def extract_tier1(
                         "value": v,
                         "kind": "pressure",
                         "source_path": "physical",
+                        **({"zone": "torso_front"} if i == 0 else {}),
                     },
                     confidence=min(1.0, max(0.0, v)),
                     source=source,

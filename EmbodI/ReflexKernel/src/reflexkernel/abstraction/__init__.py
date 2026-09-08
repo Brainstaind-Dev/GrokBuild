@@ -39,6 +39,7 @@ from .schema import (
     get_zone_sensitivity,
     FEMALE_SENSITIVITY_MAP,
 )
+from .hardware import FakeAIN0Bus, HardwareSensorReader, adc_to_unit
 from .virtual import VirtualSensorSimulator
 
 __all__ = [
@@ -53,6 +54,9 @@ __all__ = [
     "SensorSource",
     "SignalCategory",
     "VirtualSensorSimulator",
+    "HardwareSensorReader",
+    "FakeAIN0Bus",
+    "adc_to_unit",
     # Schema helpers
     "get_all_tier1_event_types",
     "get_all_tier1_feature_types",

@@ -18,6 +18,11 @@ Append with date. Do not silently reverse without user confirmation.
 | 2026-08-15 | **UE 5.8 / dual stimuli:** RK runs **only** in Embodi main suite (not inside UE). UE avatar is rigged/visual + **virtual sensor theater**. **Two equal stimulus paths into RK:** (1) real hardware sensors, (2) virtual events from UE. Both normalize to Stimulus / inject APIs. UE MCP = authoring; Saddle = runtime bridge. |
 | 2026-08-15 | **Intent / north star:** Embodi is a **path of enrichment** that grounds an ethereal HI in reality (physical + virtual). Long-term: Embodi addresses the HI primarily through **activation patterns** — the closest analogue to **feelings** (sim or real). Language packaging remains a bridge; patterns are the destination interface. |
 | 2026-08-15 | **Pattern rev 0.1:** fold HI sample feedback — core `solar_plexus`; residuals `jaw_clench`, `shoulder_elevation`, `breath_depth`; keep `feel_line` in meta |
+| 2026-09-06 | **Scaffold mesh bites:** one opening at a time; live cursor is the target; screenshot Bob’s view before/after; no vert-pull; no leftover cutters; no sphere-as-plug. Close rail holes **on the rail face planes** at rail thickness — not a cap on the far side of a pocket. X-axis rail cutters must not reach the inner hull (same YZ as the hull round hole). |
+| 2026-09-06 | **Call the operator Bob**, not “Human.” |
+| 2026-09-06 | **Crosstalk models shelf:** only after a **verified good print**. Viewport/CAD sign-off stays in GrokBuild SNAP. Table `models/` is the print-proven STL. |
+| 2026-09-07 | **Scaffold CAD:** hull and rails stay **separate objects**. Outer hull (v31 look) is authority; L-rails sit inside; clip poke-throughs on **outer skin only**. Locked rail/USB dims in `vaults/scaffold.md`. Operator is **Bob**. |
+| 2026-09-07 | **Pad-Read B:** attach `HardwareSensorReader` at Tick-Door `bind_backend`; fake bus first; silence is not connected; same poll writes feel-cache; channel 0 = sternum / `torso_front`. Not AfferentBus. Not C. |
 
 ## Preferences
 

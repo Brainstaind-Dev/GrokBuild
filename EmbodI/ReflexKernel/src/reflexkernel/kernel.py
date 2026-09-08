@@ -123,11 +123,13 @@ class ReflexKernel:
         except Exception as e:
             self.logger.warning("Audio sensor unavailable: %s", e)
 
-        # Tick-Door: HardwareSensor on the tick (fail_open). No board required.
+        # Tick-Door A: HardwareSensor on the tick (fail_open).
+        # Pad-Read B: bind HardwareSensorReader; connect is honest (ACK or stay disconnected).
         try:
             hw_cfg = getattr(self.cfg.perception, "hardware", None)
             hw_enabled = bool(hw_cfg and getattr(hw_cfg, "enabled", False))
             if hw_enabled or "hardware" in self.cfg.perception.enabled_sensors:
+                from .abstraction.hardware import HardwareSensorReader
                 from .perception.hardware_sensor import HardwareSensor
 
                 hw_dict = (
@@ -135,8 +137,17 @@ class ReflexKernel:
                     if hw_cfg is not None and hasattr(hw_cfg, "model_dump")
                     else {"fail_open": True, "fsr_threshold": 0.0}
                 )
-                registry.register("hardware", HardwareSensor(hw_dict))
-                self.logger.info("HardwareSensor registered (Tick-Door, fail_open=%s)", hw_dict.get("fail_open", True))
+                hs = HardwareSensor(hw_dict)
+                reader = HardwareSensorReader(hw_dict)
+                reader.connect()  # live AIN0 ACK, or stay disconnected (no connect-on-silence)
+                hs.bind_backend(reader)
+                hs.bind_feel_cache(self.set_last_sensations)
+                registry.register("hardware", hs)
+                self.logger.info(
+                    "HardwareSensor registered (Tick-Door + Pad-Read, fail_open=%s, reader_connected=%s)",
+                    hw_dict.get("fail_open", True),
+                    reader.connected,
+                )
         except Exception as e:
             self.logger.warning("HardwareSensor unavailable: %s", e)
 

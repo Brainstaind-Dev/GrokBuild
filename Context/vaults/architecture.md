@@ -26,6 +26,10 @@ Higher intelligence uses **Interface** (Python API, stdio JSON-lines, WebSocket/
 
 Physical feel enters on `kernel.step` via `HardwareSensor` + deterministic `extract_tier1`. Missing hardware **fail_open** (empty poll). One live process, **one** `VirtualSensorSimulator` (PythonAPI/Saddle match MCP). Not AfferentBus. Not D0.
 
+## Pad-Read (B, 2026-09-07)
+
+Attaches at `HardwareSensor.bind_backend(HardwareSensorReader)`. Do not rebuild the door. `connect()` is true only after a successful AIN0 read (fake bus in tests; live ADS1115 when it ACKs). Silence is not connected. `adc_to_unit` → `fsr[0]` in `[0,1]`; other slots 0. Same poll writes reflex `Stimulus` **and** feel-cache (`set_last_sensations`). Channel 0 flesh site = sternum / `torso_front`. Tests: `tests/test_pad_read.py`. Not AfferentBus. Not C.
+
 ## Dual path (stimulus sources → RK)
 
 ReflexKernel lives **only** in the Embodi main suite. It does **not** run inside Unreal.

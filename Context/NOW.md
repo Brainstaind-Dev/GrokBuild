@@ -1,13 +1,13 @@
 # NOW — hot status
 
-**Updated:** 2026-09-04  
-**Active fuse:** **Tick-Door A + One-Body green** on GrokBuild. Next: B Pad-Read (or C Feel-Mind). D0 does not gate A.
+**Updated:** 2026-09-07  
+**Active fuse:** **Pad-Read B built** (RK 41 green). Scaffold parked: overnight print = torso back **v31**; CAD = **v35** hull+rails (clip outer skin only, then Bob look). Next software: **C** Feel-Mind (House Spine already at the table). Live ADS1115 when AIN0 ACKs, same reader.
 
 ## Snapshot
 
 | Area | Status | Pointer |
 |------|--------|---------|
-| ReflexKernel | Tests green (27); bridge + normalize_stimuli | `EmbodI/ReflexKernel/` |
+| ReflexKernel | Tests green (41); Tick-Door A + Pad-Read B | `EmbodI/ReflexKernel/` |
 | Sensory Cortex | Aligned dual-path; tests green | `SensoryCortex/` |
 | HIAgent | Embedded + Saddle; Pi + desktop smoke OK | `HIAgent/` |
 | Pi | Git-only standup; kernel + HIAgent once | `scripts/pi/`, vault `pi-hardware` |
@@ -17,9 +17,10 @@
 
 ## Open / next
 
-1. Re-print **torso back** — interior rails + body fan pocket + USB-C on +X  
-2. Confirm 64 mm fan lead reaches header; GPIO from open face  
-3. Optional AP-5: HIAgent logs `activation_pattern`  
+1. **C Feel-Mind** — House Spine + Saddle session words already locked; wire after B (this cut). Fake bus is not flesh.  
+2. Live ADS1115 — same `HardwareSensorReader` when AIN0 ACKs; Pi still has I2C and no ACK.  
+3. Scaffold: clip `v35_rails` against **outer hull only** (not inner floor). Overnight **v31** print — Bob verifies before Crosstalk `models/`.  
+4. Next print: front `print_bed_torso_front.stl` (v3) after back is signed.  
 
 ## Do not re-litigate
 
@@ -32,4 +33,4 @@
 
 ## Compaction recovery line
 
-> Read `Context/NOW.md` + `Context/vaults/scaffold.md`. Master: `Models/embodi_scaffold_v2.blend`. Preview: `Models/print/_scaffold_v2_preview.png`.
+> Software: `Context/NOW.md` + `vaults/architecture.md` (Tick-Door A + Pad-Read B). Scaffold: `vaults/scaffold.md`. Rail/hull recipes: `vaults/blender-mcp.md`. Master: `Models/embodi_scaffold_v2.blend`.
