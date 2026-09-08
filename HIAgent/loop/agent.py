@@ -7,7 +7,13 @@ from typing import Any, Callable, Dict, Optional
 
 from ..body import create_backend
 from ..config import HIAgentConfig, load_config
-from ..llm.prompts import SYSTEM_PROMPT, format_body_update, pulse_user_message
+from ..llm.prompts import (
+    SYSTEM_PROMPT,
+    extract_activation_pattern,
+    extract_feel_line,
+    format_body_update,
+    pulse_user_message,
+)
 from ..llm.xai_chat import XAIChatSession
 from ..tools.registry import ToolRegistry
 from ..tools.schemas import build_xai_tools
@@ -78,6 +84,16 @@ class HigherIntelligenceAgent:
         if self.session:
             self.session.write(event, **payload)
 
+    def _log_feel(self, event: str, result: Dict[str, Any]) -> None:
+        """Feel-Mind: log the full activation_pattern; prompt gets feel_line only."""
+        self._log(
+            event,
+            result_ok=result.get("ok"),
+            gated=result.get("gated"),
+            feel_line=extract_feel_line(result),
+            activation_pattern=extract_activation_pattern(result),
+        )
+
     def _on_llm_event(self, event: str, data: Dict[str, Any]) -> None:
         self._log(event, **data)
         if self.config.verbose:
@@ -94,7 +110,7 @@ class HigherIntelligenceAgent:
         if not self.config.prepend_feel_on_user_turn:
             return None
         result = self.backend.feel(force=False)
-        self._log("feel", result_ok=result.get("ok"), gated=result.get("gated"))
+        self._log_feel("feel", result)
         self._track_arousal(result)
         return format_body_update(
             result, compact=self.config.compact_experience
@@ -186,7 +202,7 @@ class HigherIntelligenceAgent:
             return None
 
         feel_result = self.backend.feel(force=False)
-        self._log("pulse_feel", ok=feel_result.get("ok"), gated=feel_result.get("gated"))
+        self._log_feel("pulse_feel", feel_result)
         wake = self.should_wake(feel_result)
         self._track_arousal(feel_result)
 

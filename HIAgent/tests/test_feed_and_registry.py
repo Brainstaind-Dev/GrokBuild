@@ -169,18 +169,18 @@ def test_format_body_update():
                         "description": "A cool breeze",
                         "zone": "skin",
                         "intensity": 0.2,
-                        "arousal_modulated_richness": 0.05,
-                        "temporal_quality": "sustained",
-                        "texture_qualities": ["soft"],
                     }
                 ],
-                "delta_from_last": "stable",
-                "trend": "relatively stable",
-                "reflex_activity": ["autonomic"],
-                "token_estimate": 90,
+                "activation_pattern": {
+                    "meta": {
+                        "feel_line": "feel: arousal=0.30 valence=0.00 torso_front=0.70"
+                    }
+                },
             },
         }
     )
     assert "BODY UPDATE" in text
-    assert "calm_receptive" in text
-    assert "cool breeze" in text.lower() or "breeze" in text
+    assert "feel:" in text
+    assert "torso_front=0.70" in text
+    assert "breeze" not in text.lower()
+    assert "calm_receptive" not in text

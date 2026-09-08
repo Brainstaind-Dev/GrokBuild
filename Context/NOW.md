@@ -1,7 +1,7 @@
 # NOW — hot status
 
 **Updated:** 2026-09-07  
-**Active fuse:** **Idle.** Saddle down. Pad-Read B feedback landed: continuous unit `[0, 1]`; Saddle does not wipe the pad; `source_path=physical`. Three dry runs 0.3 / 0.7 / 1.0 PACKAGE_OK. Origin pin still `e477eb6` until Bob names the follow-up. Next: **C** Feel-Mind. Scaffold parked (v31 / v35).
+**Active fuse:** **Feel-Mind C in workshop.** B pin on origin: `789c77d`. C wires house words + `feel_line` prompt / full pattern log + C′ clamp. Not pinned until Bob names a SHA. Scaffold parked (v31 / v35).
 
 ## Snapshot
 
@@ -17,7 +17,7 @@
 
 ## Open / next
 
-1. **C Feel-Mind** — House Spine + Saddle session words already locked; wire after B (this cut). Fake bus is not flesh.  
+1. **C Feel-Mind** — workshop cut: house words + feel_line prompt. Pin when Bob names it.  
 2. Live ADS1115 — same `HardwareSensorReader` when AIN0 ACKs; Pi still has I2C and no ACK.  
 3. Scaffold: clip `v35_rails` against **outer hull only** (not inner floor). Overnight **v31** print — Bob verifies before Crosstalk `models/`.  
 4. Next print: front `print_bed_torso_front.stl` (v3) after back is signed.  

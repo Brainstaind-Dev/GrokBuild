@@ -13,8 +13,8 @@ def build_xai_tools() -> List[Any]:
         tool(
             name="feel",
             description=(
-                "Sense the body via Sensory Cortex experience package "
-                "(mood, salient sensations with rich fields, delta, trend). "
+                "Sense the body. Returns a compact feel_line from the "
+                "activation pattern (not a raw sensor dump). "
                 "Prefer this over body_snapshot. Set force=true to bypass "
                 "rate/salience gating."
             ),

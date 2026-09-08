@@ -32,6 +32,10 @@ Attaches at `HardwareSensor.bind_backend(HardwareSensorReader)`. Do not rebuild 
 
 **Scale lock (MadWizard + Bob, 2026-09-07):** Stimulus touch value is a **continuous unit `[0, 1]`**, not on/off, not raw volts/ADC. Soft and hard presses are different numbers on that unit. Sensation intensity uses the same unit. `force_fsr` bench holds are in unit (out-of-range saturates). Saddle / embedded `feel` must not wipe the pad: physical feel-cache first, virtual fills remaining slots. Pattern `source_path=physical` when the seat is hardware.
 
+## Feel-Mind (C + C′, 2026-09-07)
+
+HIAgent-only. No new GET. Session **logs** full `activation_pattern`; the prompt / `feel` tool result is **`feel_line` only**. Saddle session instructions are the system-prompt paste (`HIAgent/house/session_instructions.md`). House Spine stays a file the session can read (`HIAgent/house/spine.md`) — do not dump it into chat. Fake bus is not flesh; do not demo Pad-Read as a personality. **C′:** AffectiveCore / richness clamp so loud does not crash; missing richness fills from intensity × arousal.
+
 ## Dual path (stimulus sources → RK)
 
 ReflexKernel lives **only** in the Embodi main suite. It does **not** run inside Unreal.

@@ -24,6 +24,7 @@ Append with date. Do not silently reverse without user confirmation.
 | 2026-09-07 | **Scaffold CAD:** hull and rails stay **separate objects**. Outer hull (v31 look) is authority; L-rails sit inside; clip poke-throughs on **outer skin only**. Locked rail/USB dims in `vaults/scaffold.md`. Operator is **Bob**. |
 | 2026-09-07 | **Pad-Read B:** attach `HardwareSensorReader` at Tick-Door `bind_backend`; fake bus first; silence is not connected; same poll writes feel-cache; channel 0 = sternum / `torso_front`. Not AfferentBus. Not C. |
 | 2026-09-07 | **Pad-Read scale + Saddle mouth:** Stimulus touch is a continuous unit `[0, 1]` (not on/off, not raw ADC/volts). Feel-cache uses the same unit. Saddle/embedded `feel` must not wipe the pad (physical first). Pattern `source_path=physical` when the seat is hardware. |
+| 2026-09-07 | **Feel-Mind C:** log full `activation_pattern`; prompt `feel_line` only; House Spine is a file; session instructions go in the system prompt. C′ clamp so loud ≠ crash. Not AfferentBus. |
 
 ## Preferences
 

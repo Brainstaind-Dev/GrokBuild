@@ -82,7 +82,23 @@ class ToolRegistry:
                 "or feel with force=true for a single voluntary sample.",
                 "feed": self.feed.status(),
             }
-        return self.backend.feel(force=bool(force))
+        raw = self.backend.feel(force=bool(force))
+        # Feel-Mind: LLM sees feel_line only. Full pattern is logged by the agent.
+        from HIAgent.llm.prompts import extract_feel_line
+
+        if raw.get("ok") is False:
+            return raw
+        out: Dict[str, Any] = {
+            "ok": True,
+            "force": bool(force),
+            "feel_line": extract_feel_line(raw),
+        }
+        if raw.get("gated"):
+            out["gated"] = True
+        if raw.get("paused"):
+            out["paused"] = True
+            out["note"] = raw.get("note")
+        return out
 
     def _body_snapshot(self, **_: Any) -> Dict[str, Any]:
         return self.backend.body_snapshot()

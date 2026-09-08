@@ -9,6 +9,21 @@ from .activation_pattern import build_activation_pattern, pattern_to_compact_fee
 from .schemas import AffectiveCore, SalientSensation, SensoryUpdate
 
 
+def _clamp(x: Any, lo: float, hi: float, default: float = 0.0) -> float:
+    """C′: loud must not crash pydantic. Out-of-range and NaN saturate."""
+    try:
+        v = float(x)
+    except (TypeError, ValueError):
+        return default
+    if v != v:  # NaN
+        return default
+    if v < lo:
+        return lo
+    if v > hi:
+        return hi
+    return v
+
+
 class Summarizer:
     """
     Does **not** re-do ReflexKernel Abstraction + Coherence fusion.
@@ -96,15 +111,19 @@ class Summarizer:
         )
         dominance = affective.get("dominance", data.get("dominance", 0.5))
 
+        valence_c = _clamp(valence, -1.0, 1.0, 0.0)
+        arousal_c = _clamp(arousal, 0.0, 1.0, 0.0)
+        dominance_c = _clamp(dominance, 0.0, 1.0, 0.5)
+
         if self.enable_mood:
-            mood = self._mood_descriptor(float(valence), float(arousal))
+            mood = self._mood_descriptor(valence_c, arousal_c)
         else:
             mood = "unspecified"
 
         return AffectiveCore(
-            valence=round(float(valence), 2),
-            arousal=round(float(arousal), 2),
-            dominance=round(float(dominance), 2),
+            valence=round(valence_c, 2),
+            arousal=round(arousal_c, 2),
+            dominance=round(dominance_c, 2),
             overall_mood=mood,
         )
 
@@ -131,26 +150,41 @@ class Summarizer:
             if not isinstance(s, dict):
                 continue
 
-            intensity = float(s.get("intensity", 0.5))
-            novelty = float(s.get("novelty", 0.5))
+            intensity = _clamp(s.get("intensity", 0.5), 0.0, 1.5, 0.5)
+            novelty = _clamp(s.get("novelty", 0.5), 0.0, 1.0, 0.5)
+            arousal = _clamp(
+                (data.get("affective") or {}).get("arousal")
+                or (data.get("body_state") or {}).get("arousal_estimate")
+                or data.get("arousal")
+                or 0.0,
+                0.0,
+                1.0,
+                0.0,
+            )
+            rich_in = s.get("arousal_modulated_richness")
+            if rich_in is None or (isinstance(rich_in, (int, float)) and float(rich_in) == 0.0):
+                # C′: louder / higher arousal → richer character, still in [0, 1]
+                rich = _clamp(intensity * arousal, 0.0, 1.0, 0.0)
+            else:
+                rich = _clamp(rich_in, 0.0, 1.0, 0.0)
             # Soft floor: keep sub-threshold items if list is small; ranking still applies
             results.append(
                 SalientSensation(
                     description=str(s.get("description", "unspecified sensation")),
                     zone=str(s.get("zone", "unknown")),
                     intensity=intensity,
-                    valence=float(s.get("valence", 0.0)),
-                    arousal_contribution=float(s.get("arousal_contribution", 0.0)),
+                    valence=_clamp(s.get("valence", 0.0), -1.0, 1.0, 0.0),
+                    arousal_contribution=_clamp(
+                        s.get("arousal_contribution", 0.0), 0.0, 1.0, 0.0
+                    ),
                     novelty=novelty,
                     category=_enum_str(s.get("category")),
                     temporal_quality=_enum_str(s.get("temporal_quality")),
                     texture_qualities=list(s.get("texture_qualities") or []),
                     movement_quality=s.get("movement_quality"),
-                    arousal_modulated_richness=float(
-                        s.get("arousal_modulated_richness", 0.0) or 0.0
-                    ),
+                    arousal_modulated_richness=rich,
                     zone_character=s.get("zone_character"),
-                    confidence=float(s.get("confidence", 0.8) or 0.8),
+                    confidence=_clamp(s.get("confidence", 0.8), 0.0, 1.0, 0.8),
                     composition_notes=list(s.get("composition_notes") or []),
                 )
             )
