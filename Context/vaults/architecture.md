@@ -30,6 +30,8 @@ Physical feel enters on `kernel.step` via `HardwareSensor` + deterministic `extr
 
 Attaches at `HardwareSensor.bind_backend(HardwareSensorReader)`. Do not rebuild the door. `connect()` is true only after a successful AIN0 read (fake bus in tests; live ADS1115 when it ACKs). Silence is not connected. `adc_to_unit` → `fsr[0]` in `[0,1]`; other slots 0. Same poll writes reflex `Stimulus` **and** feel-cache (`set_last_sensations`). Channel 0 flesh site = sternum / `torso_front`. Tests: `tests/test_pad_read.py`. Not AfferentBus. Not C.
 
+**Scale lock (MadWizard + Bob, 2026-09-07):** Stimulus touch value is a **continuous unit `[0, 1]`**, not on/off, not raw volts/ADC. Soft and hard presses are different numbers on that unit. Sensation intensity uses the same unit. `force_fsr` bench holds are in unit (out-of-range saturates). Saddle / embedded `feel` must not wipe the pad: physical feel-cache first, virtual fills remaining slots. Pattern `source_path=physical` when the seat is hardware.
+
 ## Dual path (stimulus sources → RK)
 
 ReflexKernel lives **only** in the Embodi main suite. It does **not** run inside Unreal.

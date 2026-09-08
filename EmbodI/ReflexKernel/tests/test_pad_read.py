@@ -13,8 +13,8 @@ from reflexkernel.abstraction.hardware import (
     adc_to_unit,
 )
 from reflexkernel.kernel import ReflexKernel
-from reflexkernel.perception.extract_tier1 import extract_tier1
-from reflexkernel.perception.hardware_sensor import HardwareSensor
+from reflexkernel.perception.extract_tier1 import extract_tier1, fsr_to_unit
+from reflexkernel.perception.hardware_sensor import HardwareSensor, merge_feel_cache
 
 
 CFG = Path(__file__).resolve().parents[1] / "configs" / "sim_only.yaml"
@@ -135,6 +135,84 @@ def test_kernel_disconnected_reader_fail_open():
         assert k.get_last_sensations() == []
     finally:
         k.stop()
+
+
+def test_fsr_to_unit_is_continuous_not_on_off():
+    assert fsr_to_unit(0.3) == 0.3
+    assert fsr_to_unit(0.7) == 0.7
+    assert fsr_to_unit(1.0) == 1.0
+    assert fsr_to_unit(4.3) == 1.0  # saturates; does not leak raw
+    assert fsr_to_unit(-1) == 0.0
+    soft = extract_tier1({"fsr": [0.3, 0.0, 0.0, 0.0]})
+    hard = extract_tier1({"fsr": [0.9, 0.0, 0.0, 0.0]})
+    oob = extract_tier1({"fsr": [4.3, 0.0, 0.0, 0.0]})
+    assert abs(float(soft[0].data["value"]) - 0.3) < 1e-9
+    assert abs(float(hard[0].data["value"]) - 0.9) < 1e-9
+    assert abs(float(oob[0].data["value"]) - 1.0) < 1e-9
+    assert float(soft[0].data["value"]) != float(hard[0].data["value"])
+
+
+def test_same_poll_stimulus_and_sensation_share_unit():
+    cache: list = []
+    s = HardwareSensor({"fail_open": True})
+    s.bind_feel_cache(lambda sens: cache.extend(sens))
+    s.force_raw({"fsr": [0.7, 0.0, 0.0, 0.0]})
+    s.start()
+    stims = s.poll()
+    assert abs(float(stims[0].data["value"]) - 0.7) < 1e-9
+    assert abs(float(cache[0].intensity) - 0.7) < 1e-9
+
+
+def test_force_fsr_holds_steady_on_every_poll():
+    s = HardwareSensor({"fail_open": True, "force_fsr": 0.4})
+    s.start()
+    first = s.poll()
+    second = s.poll()
+    assert first and second
+    assert first[0].data.get("channel") == 0
+    assert first[0].data.get("zone") == "torso_front"
+    assert abs(float(first[0].data.get("value", 0)) - 0.4) < 1e-9
+    assert abs(float(second[0].data.get("value", 0)) - 0.4) < 1e-9
+
+
+def test_force_fsr_out_of_range_saturates():
+    s = HardwareSensor({"fail_open": True, "force_fsr": 4.3})
+    s.start()
+    stims = s.poll()
+    assert abs(float(stims[0].data["value"]) - 1.0) < 1e-9
+
+
+def test_kernel_force_fsr_fills_feel_cache():
+    k = ReflexKernel.from_config_path(
+        CFG,
+        overrides={
+            "perception": {
+                "enabled_sensors": ["hardware"],
+                "hardware": {"enabled": True, "fail_open": True, "force_fsr": 0.7},
+                "simulation": {"auto_events": False, "interactive": False},
+            }
+        },
+    )
+    k.start()
+    try:
+        k.step()
+        hw = k.perception.get("hardware")
+        stims = hw.poll()
+        sens = k.get_last_sensations()
+        assert sens, "steady force_fsr must write feel-cache on the tick"
+        assert sens[0].zone == "torso_front"
+        assert abs(float(sens[0].intensity) - 0.7) < 1e-9
+        assert abs(float(stims[0].data["value"]) - float(sens[0].intensity)) < 1e-9
+    finally:
+        k.stop()
+
+
+def test_merge_feel_cache_physical_first():
+    phys = [{"zone": "torso_front", "intensity": 0.4}]
+    virt = [{"zone": "whole_body", "intensity": 0.2}, {"zone": "head", "intensity": 0.1}]
+    merged = merge_feel_cache(phys, virt, max_count=3)
+    assert merged[0]["zone"] == "torso_front"
+    assert len(merged) == 3
 
 
 def test_extract_tier1_channel0_is_torso_front():

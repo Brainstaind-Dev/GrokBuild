@@ -14,7 +14,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional
 
 from ..types import Modality, Stimulus
 from .base import Sensor
-from .extract_tier1 import extract_tier1
+from .extract_tier1 import extract_tier1, fsr_to_unit
 
 
 class HardwareSensor(Sensor):
@@ -37,6 +37,9 @@ class HardwareSensor(Sensor):
         self._forced: Optional[Dict[str, Any]] = None
         self._backend: Any = None
         self._feel_cache: Optional[Callable[[List[Any]], None]] = None
+        force_fsr = c.get("force_fsr")
+        if force_fsr is not None:
+            self.force_raw({"fsr": [float(force_fsr), 0.0, 0.0, 0.0]})
 
     def bind_backend(self, backend: Any) -> None:
         """Pad-Read: HardwareSensorReader (fake bus or live chip). Same read_all() shape as Virtual."""
@@ -47,8 +50,21 @@ class HardwareSensor(Sensor):
         self._feel_cache = setter
 
     def force_raw(self, raw: Optional[Mapping[str, Any]]) -> None:
-        """Test / bench inject. None clears."""
-        self._forced = dict(raw) if raw is not None else None
+        """Bench inject in unit [0, 1]. None clears. Out-of-range FSR saturates; never leaks raw."""
+        if raw is None:
+            self._forced = None
+            return
+        d = dict(raw)
+        fsr = d.get("fsr")
+        if isinstance(fsr, (list, tuple)):
+            units: List[float] = []
+            for x in fsr:
+                u = fsr_to_unit(x)
+                units.append(0.0 if u is None else u)
+            while len(units) < 4:
+                units.append(0.0)
+            d["fsr"] = units[:4]
+        self._forced = d
 
     def _read_raw(self) -> Optional[Dict[str, Any]]:
         if self._forced is not None:
@@ -92,13 +108,9 @@ def _feel_from_raw(raw: Mapping[str, Any], *, threshold: float = 0.0) -> List[An
     fsr = raw.get("fsr") or []
     if not isinstance(fsr, (list, tuple)) or not fsr:
         return []
-    try:
-        v = float(fsr[0])
-    except (TypeError, ValueError):
+    v = fsr_to_unit(fsr[0])
+    if v is None or v <= threshold:
         return []
-    if v != v or v <= threshold:
-        return []
-    v = max(0.0, min(1.0, v))
     return [
         Sensation(
             description=f"Pressure at the sternum ({v:.2f}).",
@@ -111,3 +123,14 @@ def _feel_from_raw(raw: Mapping[str, Any], *, threshold: float = 0.0) -> List[An
             confidence=v,
         )
     ]
+
+
+def merge_feel_cache(physical: List[Any], virtual: List[Any], max_count: int = 3) -> List[Any]:
+    """Physical Tick-Door / Pad-Read first; virtual theater fills remaining slots. No twin."""
+    n = max(0, int(max_count))
+    merged: List[Any] = list(physical or [])
+    for s in virtual or []:
+        if len(merged) >= n:
+            break
+        merged.append(s)
+    return merged[:n]

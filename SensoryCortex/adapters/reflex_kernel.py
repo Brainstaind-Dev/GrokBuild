@@ -15,6 +15,17 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence
 
 
+def _seat_is_physical(sens_dicts: Sequence[Dict[str, Any]]) -> bool:
+    """Pad-Read / Tick-Door seat: fsr.* source_features, not virtual theater."""
+    for s in sens_dicts or []:
+        if not isinstance(s, dict):
+            continue
+        feats = s.get("source_features") or []
+        if any(str(f).startswith("fsr") for f in feats):
+            return True
+    return False
+
+
 def _sensations_to_dicts(sensations: Sequence[Any]) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
     for s in sensations or []:
@@ -77,6 +88,7 @@ def from_kernel(
             sensations = getattr(kernel, "_last_sensations", None) or []
 
     sens_dicts = _sensations_to_dicts(sensations)
+    source_path = "physical" if _seat_is_physical(sens_dicts) else None
 
     context = state.get("context") or {}
     if not isinstance(context, dict):
@@ -118,7 +130,7 @@ def from_kernel(
     contact = str(body.get("contact_state", "none")).lower()
     new_contact = contact not in ("", "none", "null")
 
-    return {
+    out = {
         "timestamp": datetime.now(),
         "sensations": sens_dicts,
         "body_state": body,
@@ -136,6 +148,9 @@ def from_kernel(
         "source": "kernel",
         "tick": state.get("tick"),
     }
+    if source_path:
+        out["source_path"] = source_path
+    return out
 
 
 def from_state_payload(
@@ -268,15 +283,32 @@ def drive_shared_sim(
                     )
                 except Exception:
                     pass
-            if extras:
-                kernel.step(extra_stimuli=extras)
+            kernel.step(extra_stimuli=extras or None)
 
     if last_out is None:
         return from_kernel(kernel, detail_level=detail_level)
 
-    sens = list(getattr(last_out, "sensations", None) or [])[:max_sensations]
     try:
-        kernel._last_sensations = list(sens)
+        from reflexkernel.perception.hardware_sensor import merge_feel_cache
+    except Exception:
+        merge_feel_cache = None  # type: ignore[assignment]
+
+    virtual = list(getattr(last_out, "sensations", None) or [])
+    physical = []
+    if hasattr(kernel, "get_last_sensations"):
+        try:
+            physical = list(kernel.get_last_sensations() or [])
+        except Exception:
+            physical = []
+    if merge_feel_cache is not None:
+        sens = merge_feel_cache(physical, virtual, max_count=max_sensations)
+    else:
+        sens = (list(physical) + virtual)[:max_sensations]
+    try:
+        if hasattr(kernel, "set_last_sensations"):
+            kernel.set_last_sensations(sens, max_count=max_sensations)
+        else:
+            kernel._last_sensations = list(sens)
     except Exception:
         pass
 

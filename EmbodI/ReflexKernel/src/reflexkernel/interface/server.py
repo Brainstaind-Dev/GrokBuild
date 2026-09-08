@@ -247,8 +247,13 @@ def create_app(
             return
         body = None
         sens = None
+        if hasattr(kernel, "get_last_sensations"):
+            cached = list(kernel.get_last_sensations() or [])
+            if cached:
+                sens = cached
         if last_out is not None:
-            sens = list(last_out.sensations or [])[:3]
+            if sens is None:
+                sens = list(last_out.sensations or [])[:3]
             if last_out.state_summary is not None:
                 body = (
                     last_out.state_summary.to_dict()
@@ -273,9 +278,10 @@ def create_app(
             logger.debug("Cortex feed failed (non-fatal): %s", exc)
 
     def _drive_abstraction_and_feed(num_steps: int = 1):
-        """Drive the virtual sim (producing rich sensations) and feed stimuli into the kernel.
-        Call this when the interface receives signals so the sensations are reflected in the body/viz.
-        The produced sensations are also attached to the kernel so the visualizer can display them.
+        """Tick the body (hardware poll + optional virtual theater) and refresh HI feel-cache.
+
+        Kernel.step always runs so Pad-Read / Tick-Door can write feel-cache.
+        Virtual sensations fill remaining slots; they must not clobber a live physical hold.
         """
         last_out = None
         for _ in range(max(1, num_steps)):
@@ -285,18 +291,38 @@ def create_app(
             from ..abstraction.bridge import abstraction_to_stimuli
 
             extras = abstraction_to_stimuli(out)
-            if extras:
-                kernel.step(extra_stimuli=extras)
+            kernel.step(extra_stimuli=extras or None)
         if last_out is not None:
-            # Attach for the visualizer / Sensory Cortex / HI consumers
+            from ..perception.hardware_sensor import merge_feel_cache
+
+            physical = []
+            if hasattr(kernel, "get_last_sensations"):
+                physical = list(kernel.get_last_sensations() or [])
+            virtual = list(last_out.sensations or [])
+            merged = merge_feel_cache(physical, virtual, max_count=3)
             if hasattr(kernel, "set_last_sensations"):
-                kernel.set_last_sensations(list(last_out.sensations or []), max_count=3)
+                kernel.set_last_sensations(merged, max_count=3)
             else:
-                kernel._last_sensations = list(last_out.sensations or [])[:3]
+                kernel._last_sensations = merged[:3]
             if hasattr(kernel, "set_last_abstraction"):
                 kernel.set_last_abstraction(last_out)
             _feed_cortex(last_out)
         return last_out  # caller can use the sensations if desired
+
+    def _feel_cache_dicts(max_count: int = 3) -> List[Dict[str, Any]]:
+        """Saddle mouth: merged feel-cache, not virtual last_out alone."""
+        raw = []
+        if hasattr(kernel, "get_last_sensations"):
+            raw = list(kernel.get_last_sensations() or [])
+        out: List[Dict[str, Any]] = []
+        for s in raw[: max(0, int(max_count))]:
+            if hasattr(s, "to_dict"):
+                out.append(s.to_dict())
+            elif hasattr(s, "model_dump"):
+                out.append(s.model_dump(mode="json"))
+            elif isinstance(s, dict):
+                out.append(s)
+        return out
 
     # Rate limiter
     rate_limiter = SimpleRateLimiter(server_config.rate_limit_per_minute)
@@ -485,8 +511,10 @@ def create_app(
             out = getattr(kernel, "get_last_abstraction", lambda: None)()
         if out is None:
             out = getattr(kernel, "get_last_abstraction", lambda: None)()
-        capped = get_capped_coherent_sensations(out) if out is not None else []
-        sensations = [s.to_dict() for s in capped]
+        sensations = _feel_cache_dicts(3)
+        if not sensations and out is not None:
+            capped = get_capped_coherent_sensations(out)
+            sensations = [s.to_dict() for s in capped]
         summary = out.state_summary.to_dict() if out is not None and out.state_summary else {}
         summary["detail_level"] = dl.value
         resp = StateResponse(**state)
@@ -516,8 +544,10 @@ def create_app(
             out = getattr(kernel, "get_last_abstraction", lambda: None)()
         if out is None:
             out = getattr(kernel, "get_last_abstraction", lambda: None)()
-        capped = get_capped_coherent_sensations(out) if out is not None else []
-        sensations = [s.to_dict() for s in capped]
+        sensations = _feel_cache_dicts(3)
+        if not sensations and out is not None:
+            capped = get_capped_coherent_sensations(out)
+            sensations = [s.to_dict() for s in capped]
         summary = out.state_summary.to_dict() if out is not None and out.state_summary else {}
         summary["detail_level"] = dl.value
         return SensationsResponse(detail_level=dl.value, sensations=sensations, state_summary=summary)

@@ -1,7 +1,7 @@
 # NOW — hot status
 
 **Updated:** 2026-09-07  
-**Active fuse:** **Pad-Read B built** (RK 41 green). Scaffold parked: overnight print = torso back **v31**; CAD = **v35** hull+rails (clip outer skin only, then Bob look). Next software: **C** Feel-Mind (House Spine already at the table). Live ADS1115 when AIN0 ACKs, same reader.
+**Active fuse:** **Idle.** Saddle down. Pad-Read B feedback landed: continuous unit `[0, 1]`; Saddle does not wipe the pad; `source_path=physical`. Three dry runs 0.3 / 0.7 / 1.0 PACKAGE_OK. Origin pin still `e477eb6` until Bob names the follow-up. Next: **C** Feel-Mind. Scaffold parked (v31 / v35).
 
 ## Snapshot
 

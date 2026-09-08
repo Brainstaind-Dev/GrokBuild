@@ -1,0 +1,67 @@
+# Pad-Read dry run — hardware seat on, no theater noise, no viz.
+# Fake bus / force_raw; not a live ADS1115.
+
+kernel:
+  tick_rate_hz: 20
+  log_level: "WARNING"
+  seed: 1337
+
+perception:
+  enabled_sensors:
+    - hardware
+  hardware:
+    enabled: true
+    fail_open: true
+    fsr_threshold: 0.0
+    force_fsr: 1.0  # unit [0, 1]; out-of-range saturates. Not a live ADS1115.
+  simulation:
+    interactive: false
+    auto_events: false
+    auto_event_interval_s: 30.0
+
+bridge:
+  structured_seeds: true
+  keyword_rules: true
+  use_sentence_transformers: false
+  use_sentiment: false
+  fusion:
+    arousal_decay_per_tick: 0.04
+    valence_decay_per_tick: 0.015
+    stimulus_weight: 0.7
+    thought_weight: 0.5
+
+reflex:
+  enabled_primitives:
+    - flinch
+    - blink
+    - tension
+    - orient
+    - freeze
+    - autonomic
+  base_sensitivity: 0.85
+
+learner:
+  enabled: false
+  store_path: "data/learned_sim"
+
+output:
+  visualization: "none"
+  log_structured: true
+  avatar:
+    width: 720
+    height: 520
+    show_stimuli_overlay: false
+    show_reflex_traces: false
+
+interface:
+  mode: "stdio"
+  stdio:
+    enabled: false
+    pretty: false
+  websocket:
+    enabled: false
+  server:
+    enabled: false
+    host: "127.0.0.1"
+    port: 8000
+    api_key: "reflexkernel-dev"

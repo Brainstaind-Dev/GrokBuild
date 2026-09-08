@@ -22,6 +22,14 @@ def _f(x: Any) -> float | None:
     return v
 
 
+def fsr_to_unit(x: Any) -> float | None:
+    """Pad-Read / Tick-Door touch unit. Continuous [0, 1]. Never boolean. Never raw ADC/volts."""
+    v = _f(x)
+    if v is None:
+        return None
+    return max(0.0, min(1.0, v))
+
+
 def extract_tier1(
     raw: Mapping[str, Any] | None,
     *,
@@ -33,6 +41,8 @@ def extract_tier1(
 
     `fsr[0] = 0.4` always yields a touch stimulus (threshold default 0).
     Empty / missing / all-zero FSR yields [].
+    Values are the continuous unit [0, 1] (soft vs hard are different numbers).
+    Out-of-range saturates; never a contact bit, never a raw volts/ADC leak.
     """
     if not raw:
         return []
@@ -41,7 +51,7 @@ def extract_tier1(
     if not isinstance(fsr, (list, tuple)):
         fsr = []
     for i, val in enumerate(fsr):
-        v = _f(val)
+        v = fsr_to_unit(val)
         if v is None:
             continue
         if v > fsr_threshold:
@@ -56,7 +66,7 @@ def extract_tier1(
                         "source_path": "physical",
                         **({"zone": "torso_front"} if i == 0 else {}),
                     },
-                    confidence=min(1.0, max(0.0, v)),
+                    confidence=v,
                     source=source,
                 )
             )

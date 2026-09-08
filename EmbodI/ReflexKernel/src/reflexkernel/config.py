@@ -50,6 +50,7 @@ class HardwarePerceptionConfig(BaseModel):
     enabled: bool = False
     fail_open: bool = True
     fsr_threshold: float = 0.0
+    force_fsr: Optional[float] = None  # bench hold, unit [0, 1]; out-of-range saturates
 
 
 class PerceptionConfig(BaseModel):

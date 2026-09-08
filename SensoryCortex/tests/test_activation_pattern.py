@@ -105,6 +105,24 @@ def test_cortex_experience_includes_activation_pattern(cortex):
     assert "arousal=" in line
 
 
+def test_physical_source_path_is_not_remapped_to_sim():
+    p = build_activation_pattern(
+        {
+            "affective": {"valence": 0.0, "arousal": 0.2, "dominance": 0.5},
+            "sensations": [
+                {
+                    "description": "Pressure at the sternum (0.40).",
+                    "zone": "torso_front",
+                    "intensity": 0.4,
+                    "source_features": ["fsr.0"],
+                }
+            ],
+            "source_path": "physical",
+        }
+    )
+    assert p.to_public_dict()["source_path"] == "physical"
+
+
 def test_extended_zone_maps_to_core():
     p = build_activation_pattern(
         {
