@@ -40,8 +40,9 @@ def extract_tier1(
     Turn a Virtual-shaped raw packet into kernel stimuli.
 
     `fsr[0] = 0.4` always yields a touch stimulus (threshold default 0).
-    Empty / missing / all-zero FSR yields [].
+    Empty / missing / all-zero FSR yields [] unless channel-0 `afterglow` remains.
     Values are the continuous unit [0, 1] (soft vs hard are different numbers).
+    Fast `value` + slow `afterglow` share that unit on the same Stimulus (no second Sensor).
     Out-of-range saturates; never a contact bit, never a raw volts/ADC leak.
     """
     if not raw:
@@ -50,23 +51,28 @@ def extract_tier1(
     fsr = raw.get("fsr") or []
     if not isinstance(fsr, (list, tuple)):
         fsr = []
+    glow0 = fsr_to_unit(raw.get("afterglow"))
     for i, val in enumerate(fsr):
         v = fsr_to_unit(val)
         if v is None:
             continue
-        if v > fsr_threshold:
+        glow = glow0 if i == 0 and glow0 is not None else 0.0
+        if v > fsr_threshold or glow > fsr_threshold:
+            data: Dict[str, Any] = {
+                "type": "fsr",
+                "channel": i,
+                "value": v,
+                "kind": "pressure",
+                "source_path": "physical",
+                **({"zone": "torso_front"} if i == 0 else {}),
+            }
+            if i == 0:
+                data["afterglow"] = glow if glow0 is not None else v
             out.append(
                 Stimulus(
                     modality=Modality.TOUCH,
-                    data={
-                        "type": "fsr",
-                        "channel": i,
-                        "value": v,
-                        "kind": "pressure",
-                        "source_path": "physical",
-                        **({"zone": "torso_front"} if i == 0 else {}),
-                    },
-                    confidence=v,
+                    data=data,
+                    confidence=max(v, glow),
                     source=source,
                 )
             )

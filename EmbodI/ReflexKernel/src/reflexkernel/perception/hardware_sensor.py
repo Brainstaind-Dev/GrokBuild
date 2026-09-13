@@ -9,6 +9,7 @@ Pad-Read (B): bind_backend(HardwareSensorReader); same poll updates feel-cache.
 
 from __future__ import annotations
 
+import math
 import time
 from typing import Any, Callable, Dict, List, Mapping, Optional
 
@@ -34,6 +35,9 @@ class HardwareSensor(Sensor):
         )
         self._fail_open = bool(c.get("fail_open", True))
         self._fsr_threshold = float(c.get("fsr_threshold", 0.0))
+        self._afterglow_tau_s = float(c.get("afterglow_tau_s", 1.5))
+        self._afterglow = 0.0
+        self._afterglow_ts: Optional[float] = None
         self._forced: Optional[Dict[str, Any]] = None
         self._backend: Any = None
         self._feel_cache: Optional[Callable[[List[Any]], None]] = None
@@ -82,16 +86,47 @@ class HardwareSensor(Sensor):
             return None
         return None
 
+    def _advance_afterglow(self, fast: float, now: float) -> float:
+        """Instant attack, exponential release. Same [0, 1] unit as Stimulus.value."""
+        tau = max(1e-6, self._afterglow_tau_s)
+        prev_ts = self._afterglow_ts
+        self._afterglow_ts = now
+        if fast >= self._afterglow:
+            self._afterglow = fast
+        elif prev_ts is not None:
+            dt = max(0.0, now - prev_ts)
+            self._afterglow *= math.exp(-dt / tau)
+        if self._afterglow < 1e-3:
+            self._afterglow = 0.0
+        return self._afterglow
+
     def poll(self) -> List[Stimulus]:
         try:
             raw = self._read_raw()
-            if not raw:
+            now = time.perf_counter()
+            fast = 0.0
+            if raw:
+                fsr = raw.get("fsr") or []
+                if isinstance(fsr, (list, tuple)) and fsr:
+                    u = fsr_to_unit(fsr[0])
+                    fast = 0.0 if u is None else u
+            glow = self._advance_afterglow(fast, now)
+            if not raw and glow <= self._fsr_threshold:
+                if self._feel_cache is not None:
+                    self._feel_cache([])
                 return []
+            packet: Dict[str, Any] = dict(raw) if raw else {"fsr": [fast, 0.0, 0.0, 0.0]}
+            fsr = list(packet.get("fsr") or [fast, 0.0, 0.0, 0.0])
+            while len(fsr) < 4:
+                fsr.append(0.0)
+            fsr[0] = fast
+            packet["fsr"] = fsr
+            packet["afterglow"] = glow
             stims = extract_tier1(
-                raw, source=self.name, fsr_threshold=self._fsr_threshold
+                packet, source=self.name, fsr_threshold=self._fsr_threshold
             )
             if self._feel_cache is not None:
-                self._feel_cache(_feel_from_raw(raw, threshold=self._fsr_threshold))
+                self._feel_cache(_feel_from_raw(packet, threshold=self._fsr_threshold))
             return stims
         except Exception:
             if not self._fail_open:
@@ -108,19 +143,32 @@ def _feel_from_raw(raw: Mapping[str, Any], *, threshold: float = 0.0) -> List[An
     fsr = raw.get("fsr") or []
     if not isinstance(fsr, (list, tuple)) or not fsr:
         return []
-    v = fsr_to_unit(fsr[0])
-    if v is None or v <= threshold:
+    fast = fsr_to_unit(fsr[0])
+    if fast is None:
+        fast = 0.0
+    glow = fsr_to_unit(raw.get("afterglow"))
+    if glow is None:
+        glow = fast
+    felt = max(fast, glow)
+    if felt <= threshold:
         return []
+    lingering = fast <= threshold < felt
     return [
         Sensation(
-            description=f"Pressure at the sternum ({v:.2f}).",
+            description=(
+                f"Afterglow at the sternum ({felt:.2f})."
+                if lingering
+                else f"Pressure at the sternum ({felt:.2f})."
+            ),
             zone="torso_front",
-            intensity=v,
+            intensity=felt,
             category=SensationCategory.CONTACT_PRESSURE,
-            temporal_quality=TemporalQuality.SUSTAINED,
+            temporal_quality=(
+                TemporalQuality.LINGERING if lingering else TemporalQuality.SUSTAINED
+            ),
             source_features=["fsr.0"],
             ts=float(raw.get("ts") or time.perf_counter()),
-            confidence=v,
+            confidence=felt,
         )
     ]
 
