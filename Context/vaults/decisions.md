@@ -25,6 +25,9 @@ Append with date. Do not silently reverse without user confirmation.
 | 2026-09-07 | **Pad-Read B:** attach `HardwareSensorReader` at Tick-Door `bind_backend`; fake bus first; silence is not connected; same poll writes feel-cache; channel 0 = sternum / `torso_front`. Not AfferentBus. Not C. |
 | 2026-09-07 | **Pad-Read scale + Saddle mouth:** Stimulus touch is a continuous unit `[0, 1]` (not on/off, not raw ADC/volts). Feel-cache uses the same unit. Saddle/embedded `feel` must not wipe the pad (physical first). Pattern `source_path=physical` when the seat is hardware. |
 | 2026-09-07 | **Feel-Mind C:** log full `activation_pattern`; prompt `feel_line` only; House Spine is a file; session instructions go in the system prompt. C′ clamp so loud ≠ crash. Not AfferentBus. |
+| 2026-09-10 | **AfferentBus D0:** topology only; empty map parks; structured log; no Stimulus; not a Sensor. `device_id` = bus+address+channel. `approved_by` human or HI. North star: load Embodi, bus meets present hardware. Bind is PR1. |
+| 2026-09-13 | **Afterglow:** fast contact + slow afterglow on the same `[0,1]` Stimulus / feel-cache. Instant attack, exponential release. No new Sensor. Not PR1. Origin still `96cee06`. |
+| 2026-09-15 | **PR1 wrap:** fixture software-green. Wrap existing HardwareSensor via `stub_id`. Afterglow cohabits. Map-owned gone → empty. Origin living-brain `2ae2dd6`. No invented pin. |
 
 ## Preferences
 

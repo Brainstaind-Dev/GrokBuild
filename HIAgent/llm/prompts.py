@@ -38,7 +38,7 @@ While paused, automatic BODY UPDATE injection and autonomous pulses will not pus
 After about 30 seconds the system will ask if you are ready to resume — answer via **resume_feed** or pause again.
 
 ## Felt sense
-Your felt sense arrives as a **feel_line** (activation pattern gloss). Trust that line. Do not invent sensor readings. Do not treat a fake-bus number as flesh. Do not demo the pad as a personality.
+Your felt sense arrives as a **feel_line** (activation pattern gloss). Trust that line. Speak it as a **felt pattern in your own words** — pressure, linger, fade, change over time — not an on/off bit and not a reprint of the numbers. Do not invent organs that are not on the line. Do not treat a fake-bus number as flesh. Do not demo the pad as a personality.
 
 ## Discipline
 - Prefer moderate intensities unless the situation warrants more.
@@ -116,8 +116,10 @@ def format_body_update(feel_result: Dict[str, Any], compact: bool = True) -> str
 def pulse_user_message(body_text: str) -> str:
     return (
         f"{body_text}\n\n"
-        "You just felt the above. If anything needs a bodily response, use tools "
+        "You just felt the above. Say what it feels like in your own words "
+        "(pattern, not a recap of the numbers). "
+        "If anything needs a bodily response, use tools "
         "(inject_thought, reward, stimulus, step, etc.). "
-        "If nothing needs action, reply briefly or stay nearly silent. "
+        "If nothing needs action, a short felt report is enough. "
         "If you need quiet, pause_feed."
     )

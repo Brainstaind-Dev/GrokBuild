@@ -44,6 +44,14 @@ class AudioConfig(BaseModel):
     energy_threshold: float = 0.02
 
 
+class AfferentConfig(BaseModel):
+    """D0 topology. Empty map parks everything. Never a Sensor."""
+
+    enabled: bool = True
+    fail_open: bool = True
+    map_path: Optional[str] = None  # default: configs/afferent_map.yaml beside this package
+
+
 class HardwarePerceptionConfig(BaseModel):
     """Tick-Door seat. Missing bus/chip must fail_open (empty poll)."""
 
@@ -60,6 +68,7 @@ class PerceptionConfig(BaseModel):
     vision: VisionConfig = Field(default_factory=VisionConfig)
     audio: AudioConfig = Field(default_factory=AudioConfig)
     hardware: HardwarePerceptionConfig = Field(default_factory=HardwarePerceptionConfig)
+    afferent: AfferentConfig = Field(default_factory=AfferentConfig)
 
 
 class FusionConfig(BaseModel):

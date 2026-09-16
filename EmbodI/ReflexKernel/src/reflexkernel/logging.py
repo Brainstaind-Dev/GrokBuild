@@ -112,6 +112,27 @@ def log_learner_update(
     logger.log(level, f"[learner] {kind} '{behavior}' {detail}")
 
 
+def log_afferent(logger: logging.Logger, event: Any, level: int = logging.INFO) -> None:
+    """D0 topology. Not feel. Not a Stimulus."""
+    if hasattr(event, "to_dict"):
+        d = event.to_dict()
+    elif isinstance(event, dict):
+        d = event
+    else:
+        logger.log(level, f"[afferent] {event}")
+        return
+    kind = d.get("kind", "event")
+    did = d.get("device_id", "")
+    disp = d.get("disposition") or ""
+    site = d.get("body_site") or ""
+    extra = ""
+    if disp:
+        extra += f" disp={disp}"
+    if site:
+        extra += f" site={site}"
+    logger.log(level, f"[afferent] {kind} id={did}{extra}")
+
+
 def log_kernel_tick(
     logger: logging.Logger,
     tick: int,

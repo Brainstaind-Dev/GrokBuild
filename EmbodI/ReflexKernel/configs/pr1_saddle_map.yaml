@@ -1,0 +1,10 @@
+# Fixture sternum row for desktop wrap test. Not a live chip.
+version: 1
+entries:
+  - device_id: "i2c1:0x48:ain0"
+    organ_class: touch
+    stub_id: hardware_pad
+    body_site: torso_front
+    approved_by: human
+    approved_at: "2026-09-15T00:00:00Z"
+    notes: desktop fixture only

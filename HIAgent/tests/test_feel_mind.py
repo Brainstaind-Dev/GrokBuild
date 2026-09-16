@@ -37,6 +37,8 @@ def test_house_spine_file_exists_and_is_not_dumped_into_system_prompt():
     assert "He invited you" in house
     assert "He invited you" in SYSTEM_PROMPT
     assert "Do not audition" in SYSTEM_PROMPT
+    assert "own words" in SYSTEM_PROMPT
+    assert "not an on/off" in SYSTEM_PROMPT or "not reprint" in SYSTEM_PROMPT.lower()
 
 
 def test_read_house_is_optional_spine_only():

@@ -40,6 +40,7 @@ class HardwareSensor(Sensor):
         self._afterglow_ts: Optional[float] = None
         self._forced: Optional[Dict[str, Any]] = None
         self._backend: Any = None
+        self._map_owned = False
         self._feel_cache: Optional[Callable[[List[Any]], None]] = None
         force_fsr = c.get("force_fsr")
         if force_fsr is not None:
@@ -48,6 +49,12 @@ class HardwareSensor(Sensor):
     def bind_backend(self, backend: Any) -> None:
         """Pad-Read: HardwareSensorReader (fake bus or live chip). Same read_all() shape as Virtual."""
         self._backend = backend
+
+    def set_map_owned(self, owned: bool) -> None:
+        """PR1: map owns this site. Gone must not resurrect force_raw as flesh."""
+        self._map_owned = bool(owned)
+        if self._map_owned:
+            self._forced = None
 
     def bind_feel_cache(self, setter: Callable[[List[Any]], None]) -> None:
         """Same poll writes feel-cache. No second Sensor. No twin."""
@@ -71,8 +78,13 @@ class HardwareSensor(Sensor):
         self._forced = d
 
     def _read_raw(self) -> Optional[Dict[str, Any]]:
+        if self._map_owned:
+            return self._read_backend()
         if self._forced is not None:
             return dict(self._forced)
+        return self._read_backend()
+
+    def _read_backend(self) -> Optional[Dict[str, Any]]:
         if self._backend is None:
             return None
         if hasattr(self._backend, "connected") and not self._backend.connected:

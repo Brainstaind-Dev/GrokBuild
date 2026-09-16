@@ -36,6 +36,18 @@ Attaches at `HardwareSensor.bind_backend(HardwareSensorReader)`. Do not rebuild 
 
 HIAgent-only. No new GET. Session **logs** full `activation_pattern`; the prompt / `feel` tool result is **`feel_line` only**. Saddle session instructions are the system-prompt paste (`HIAgent/house/session_instructions.md`). House Spine stays a file (`HIAgent/house/spine.md`). Optional tool **`read_house`** opens that file only — rider chooses, not forced, not a filesystem GET. Do not dump the spine into chat. Fake bus is not flesh; do not demo Pad-Read as a personality. **C′:** AffectiveCore / richness clamp so loud does not crash; missing richness fills from intensity × arousal.
 
+## AfferentBus PR1 wrap (2026-09-15)
+
+Wrap-not-twin: map-approved `touch` / `stub_id=hardware_pad` feeds the **existing** HardwareSensor. Afterglow stays on the seat. Map-owned `torso_front` + device gone → fail_open empty (no force_raw resurrection). Empty map still boots channel-0 hardcode. Yaml pen. Fixture `FixturePadBus` is not flesh.
+
+## Afterglow (two-path, 2026-09-13)
+
+Software ballast on the existing Pad-Read feel-cache. Fast `Stimulus.data.value` tracks contact; slow `afterglow` is instant-attack / exponential-release on the same `[0, 1]` unit. Feel intensity is `max(fast, afterglow)`; after contact drops, temporal_quality is `lingering`. No new Sensor. No new membrane. Not AfferentBus PR1.
+
+## AfferentBus D0 (PR0, 2026-09-10)
+
+Topology only. Empty `configs/afferent_map.yaml` parks everything. Appear/gone/heartbeat → structured log. Reserve = identity, **no Stimulus**. Not a Sensor. Channel-0 boot seat unchanged. PR1 bind is later. Live never invents `organ_class`.
+
 ## Dual path (stimulus sources → RK)
 
 ReflexKernel lives **only** in the Embodi main suite. It does **not** run inside Unreal.

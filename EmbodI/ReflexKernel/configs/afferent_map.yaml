@@ -1,0 +1,4 @@
+# AfferentBus organ map (D0/PR0). Empty = park everything.
+# Entry schema is for fixtures and later PR1 bind. D0 never injects Stimulus.
+version: 1
+entries: []

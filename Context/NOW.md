@@ -1,7 +1,7 @@
 # NOW — hot status
 
-**Updated:** 2026-09-07  
-**Active fuse:** **Feel-Mind C in workshop.** B pin on origin: `789c77d`. C wires house words + `feel_line` prompt / full pattern log + C′ clamp. Not pinned until Bob names a SHA. Scaffold parked (v31 / v35).
+**Updated:** 2026-09-16  
+**Active fuse:** **Idle.** Desktop 10-min Saddle+xAI wrap test done; stack down. Origin still `2ae2dd6` until the push in this session lands. D0+PR1 wrap + felt-language cue in tree. Pi not pulled. TacPAC / M3 parked.
 
 ## Snapshot
 
@@ -17,10 +17,10 @@
 
 ## Open / next
 
-1. **C Feel-Mind** — workshop cut: house words + feel_line prompt. Pin when Bob names it.  
-2. Live ADS1115 — same `HardwareSensorReader` when AIN0 ACKs; Pi still has I2C and no ACK.  
-3. Scaffold: clip `v35_rails` against **outer hull only** (not inner floor). Overnight **v31** print — Bob verifies before Crosstalk `models/`.  
-4. Next print: front `print_bed_torso_front.stl` (v3) after back is signed.  
+1. **PR1 wrap** — fixture software-green in workshop. Bob names a SHA if Tender should pull D0+PR1.  
+2. Live ADS1115 — same Pad-Read reader when AIN0 ACKs.  
+3. Live ADS1115 — same `HardwareSensorReader` when AIN0 ACKs; Pi still has I2C and no ACK.  
+4. Scaffold: clip `v35_rails` against **outer hull only** (not inner floor). Overnight **v31** print — Bob verifies before Crosstalk `models/`.  
 
 ## Do not re-litigate
 

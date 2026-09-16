@@ -19,6 +19,7 @@ from typing import Any, Callable, Dict, List, Optional
 from .config import ReflexKernelConfig, load_config
 from .logging import (
     get_logger,
+    log_afferent,
     log_fusion,
     log_kernel_tick,
     log_reflex_fire,
@@ -73,6 +74,7 @@ class ReflexKernel:
 
         # Layers (populated in _init_layers)
         self.perception: Any = None
+        self.afferent: Any = None
         self.bridge: Any = None
         self.reflex_core: Any = None
         self.learner: Any = None
@@ -153,6 +155,38 @@ class ReflexKernel:
 
         self.perception = registry
 
+        # D0: AfferentBus topology. Not a Sensor. Never Stimulus.
+        self.afferent = None
+        try:
+            aff_cfg = getattr(self.cfg.perception, "afferent", None)
+            if aff_cfg is None or bool(getattr(aff_cfg, "enabled", True)):
+                from .logging import log_afferent as _log_aff
+                from .perception.afferent_bus import AfferentBus
+
+                map_path = getattr(aff_cfg, "map_path", None) if aff_cfg else None
+                if not map_path:
+                    map_path = (
+                        Path(__file__).resolve().parents[2] / "configs" / "afferent_map.yaml"
+                    )
+                fail_open = True if aff_cfg is None else bool(getattr(aff_cfg, "fail_open", True))
+
+                def _sink(ev):
+                    _log_aff(self.logger, ev)
+
+                self.afferent = AfferentBus(
+                    map_path=map_path,
+                    fail_open=fail_open,
+                    log=_sink,
+                )
+                self.logger.info(
+                    "AfferentBus D0 attached (map=%s, fail_open=%s, not a Sensor)",
+                    map_path,
+                    fail_open,
+                )
+        except Exception as e:
+            self.logger.warning("AfferentBus unavailable (fail_open): %s", e)
+            self.afferent = None
+
         # --- Bridge ---
         from .bridge.thought_bridge import ThoughtBridge
 
@@ -197,6 +231,21 @@ class ReflexKernel:
     # Public control surface (used by higher intelligence & interfaces)
     # ------------------------------------------------------------------
 
+    def _apply_afferent_wrap(self) -> None:
+        """PR1: wrap existing HardwareSensor. Afterglow stays on the seat. No twin."""
+        hs = self.perception.get("hardware") if self.perception is not None else None
+        bus = self.afferent
+        if hs is None or bus is None:
+            return
+        owned = bool(bus.site_map_owned("torso_front"))
+        if hasattr(hs, "set_map_owned"):
+            hs.set_map_owned(owned)
+        wrapped = bus.wrap_reader("hardware_pad") if hasattr(bus, "wrap_reader") else None
+        if wrapped is not None:
+            hs.bind_backend(wrapped)
+        elif owned:
+            hs.bind_backend(None)
+
     def start(self) -> None:
         """Start background elements (sensors that need threads, viz, etc.)."""
         self._running = True
@@ -220,6 +269,14 @@ class ReflexKernel:
         """
         tick_start = time.perf_counter()
         self.state.tick += 1
+
+        # D0 topology poll — identity only, never mixed into stimuli
+        if self.afferent is not None:
+            try:
+                self.afferent.poll()
+                self._apply_afferent_wrap()
+            except Exception as e:
+                self.logger.debug("AfferentBus poll failed (fail_open): %s", e)
 
         # 1. Collect real + injected stimuli
         stimuli: StimulusBatch = self.perception.collect_all()
