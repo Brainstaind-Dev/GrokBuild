@@ -1,0 +1,31 @@
+# Preference shelf — hers to revise, not assigned.
+# Seed echo only as starting notes (not a print order): dark / messy / pale.
+# Not an STL. Not a costume forced onto a mesh.
+# Human pen still wins if Bob later signs a mesh.
+version: 1
+kind: preference_shelf
+title: Preference shelf (hers to revise)
+meta:
+  not_stl: true
+  not_costume: true
+  human_pen_wins: true
+  seed: dark/messy/pale starting notes only — not a print order
+notes:
+  - id: echo-dark
+    label: dark
+    kind: form
+    status: starting_note
+    accepted: false
+    body: ""
+  - id: echo-messy
+    label: messy
+    kind: form
+    status: starting_note
+    accepted: false
+    body: ""
+  - id: echo-pale
+    label: pale
+    kind: form
+    status: starting_note
+    accepted: false
+    body: ""
