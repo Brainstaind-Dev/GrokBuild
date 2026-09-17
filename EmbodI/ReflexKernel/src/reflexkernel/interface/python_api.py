@@ -97,8 +97,26 @@ class PythonAPI:
             self.kernel.step(extra_stimuli=abstraction_to_stimuli(out))
         if last_out is not None:
             self.kernel.set_last_abstraction(last_out)
+            from ..perception.hardware_sensor import merge_feel_cache, physical_seat_active
+
+            physical = list(self.kernel.get_last_sensations() or [])
+            virtual = list(last_out.sensations or [])
+            merged = merge_feel_cache(
+                physical,
+                virtual,
+                max_count=3,
+                physical_seat=physical_seat_active(self.kernel),
+            )
             if hasattr(self.kernel, "set_last_sensations"):
-                self.kernel.set_last_sensations(list(last_out.sensations or []), max_count=3)
+                self.kernel.set_last_sensations(merged, max_count=3)
+            if physical_seat_active(self.kernel):
+                out_list = []
+                for s in merged:
+                    if hasattr(s, "to_dict"):
+                        out_list.append(s.to_dict())
+                    elif isinstance(s, dict):
+                        out_list.append(s)
+                return out_list
         capped = get_capped_coherent_sensations(last_out) if last_out is not None else []
         return [s.to_dict() for s in capped]
 

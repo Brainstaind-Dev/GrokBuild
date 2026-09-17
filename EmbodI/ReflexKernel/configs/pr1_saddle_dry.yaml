@@ -11,7 +11,7 @@ perception:
     enabled: true
     fail_open: true
     fsr_threshold: 0.0
-    afterglow_tau_s: 1.5
+    afterglow_tau_s: 35.0
   afferent:
     enabled: true
     fail_open: true

@@ -59,7 +59,7 @@ class HardwarePerceptionConfig(BaseModel):
     fail_open: bool = True
     fsr_threshold: float = 0.0
     force_fsr: Optional[float] = None  # bench hold, unit [0, 1]; out-of-range saturates
-    afterglow_tau_s: float = 1.5  # slow path release; same unit as Stimulus.value
+    afterglow_tau_s: float = 35.0  # slow path; covers ~30s feel sample window
 
 
 class PerceptionConfig(BaseModel):

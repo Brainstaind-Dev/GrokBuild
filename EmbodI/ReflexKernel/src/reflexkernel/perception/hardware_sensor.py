@@ -35,7 +35,7 @@ class HardwareSensor(Sensor):
         )
         self._fail_open = bool(c.get("fail_open", True))
         self._fsr_threshold = float(c.get("fsr_threshold", 0.0))
-        self._afterglow_tau_s = float(c.get("afterglow_tau_s", 1.5))
+        self._afterglow_tau_s = float(c.get("afterglow_tau_s", 35.0))  # covers ~30s feel sample window
         self._afterglow = 0.0
         self._afterglow_ts: Optional[float] = None
         self._forced: Optional[Dict[str, Any]] = None
@@ -185,10 +185,36 @@ def _feel_from_raw(raw: Mapping[str, Any], *, threshold: float = 0.0) -> List[An
     ]
 
 
-def merge_feel_cache(physical: List[Any], virtual: List[Any], max_count: int = 3) -> List[Any]:
-    """Physical Tick-Door / Pad-Read first; virtual theater fills remaining slots. No twin."""
+def physical_seat_active(kernel: Any) -> bool:
+    """True when Tick-Door HardwareSensor is on the live registry."""
+    perc = getattr(kernel, "perception", None)
+    getter = getattr(perc, "get", None)
+    if not callable(getter):
+        return False
+    try:
+        return getter("hardware") is not None
+    except Exception:
+        return False
+
+
+def merge_feel_cache(
+    physical: List[Any],
+    virtual: List[Any],
+    max_count: int = 3,
+    *,
+    physical_seat: bool = False,
+) -> List[Any]:
+    """Physical Tick-Door / Pad-Read first; virtual fills remaining slots.
+
+    When physical_seat is True and physical is empty (present@0 / gone /
+    fail_open with no afterglow), do not costume emptiness with virtual warmth.
+    Sim-only (no hardware seat) still uses virtual. No twin.
+    """
     n = max(0, int(max_count))
-    merged: List[Any] = list(physical or [])
+    phys = list(physical or [])
+    if physical_seat and not phys:
+        return []
+    merged: List[Any] = list(phys)
     for s in virtual or []:
         if len(merged) >= n:
             break

@@ -54,7 +54,7 @@ from .models import (
     ThoughtSeedRequest,
     SensationsResponse,
 )
-from ..abstraction import VirtualSensorSimulator, get_coherent_sensations, get_capped_coherent_sensations
+from ..abstraction import VirtualSensorSimulator
 from ..abstraction.schema import DetailLevel, Sensation, AbstractionOutput
 
 # FastAPI imports are attempted at import time but the module remains usable
@@ -245,12 +245,17 @@ def create_app(
         cortex = _cortex_holder.get("cortex")
         if cortex is None:
             return
+        from ..perception.hardware_sensor import physical_seat_active
+
         body = None
         sens = None
         if hasattr(kernel, "get_last_sensations"):
             cached = list(kernel.get_last_sensations() or [])
             if cached:
                 sens = cached
+            elif physical_seat_active(kernel):
+                # Honest empty: do not costume with virtual last_out.
+                sens = []
         if last_out is not None:
             if sens is None:
                 sens = list(last_out.sensations or [])[:3]
@@ -293,13 +298,18 @@ def create_app(
             extras = abstraction_to_stimuli(out)
             kernel.step(extra_stimuli=extras or None)
         if last_out is not None:
-            from ..perception.hardware_sensor import merge_feel_cache
+            from ..perception.hardware_sensor import merge_feel_cache, physical_seat_active
 
             physical = []
             if hasattr(kernel, "get_last_sensations"):
                 physical = list(kernel.get_last_sensations() or [])
             virtual = list(last_out.sensations or [])
-            merged = merge_feel_cache(physical, virtual, max_count=3)
+            merged = merge_feel_cache(
+                physical,
+                virtual,
+                max_count=3,
+                physical_seat=physical_seat_active(kernel),
+            )
             if hasattr(kernel, "set_last_sensations"):
                 kernel.set_last_sensations(merged, max_count=3)
             else:
@@ -512,9 +522,6 @@ def create_app(
         if out is None:
             out = getattr(kernel, "get_last_abstraction", lambda: None)()
         sensations = _feel_cache_dicts(3)
-        if not sensations and out is not None:
-            capped = get_capped_coherent_sensations(out)
-            sensations = [s.to_dict() for s in capped]
         summary = out.state_summary.to_dict() if out is not None and out.state_summary else {}
         summary["detail_level"] = dl.value
         resp = StateResponse(**state)
@@ -545,9 +552,6 @@ def create_app(
         if out is None:
             out = getattr(kernel, "get_last_abstraction", lambda: None)()
         sensations = _feel_cache_dicts(3)
-        if not sensations and out is not None:
-            capped = get_capped_coherent_sensations(out)
-            sensations = [s.to_dict() for s in capped]
         summary = out.state_summary.to_dict() if out is not None and out.state_summary else {}
         summary["detail_level"] = dl.value
         return SensationsResponse(detail_level=dl.value, sensations=sensations, state_summary=summary)

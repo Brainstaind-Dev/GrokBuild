@@ -289,9 +289,13 @@ def drive_shared_sim(
         return from_kernel(kernel, detail_level=detail_level)
 
     try:
-        from reflexkernel.perception.hardware_sensor import merge_feel_cache
+        from reflexkernel.perception.hardware_sensor import (
+            merge_feel_cache,
+            physical_seat_active,
+        )
     except Exception:
         merge_feel_cache = None  # type: ignore[assignment]
+        physical_seat_active = None  # type: ignore[assignment]
 
     virtual = list(getattr(last_out, "sensations", None) or [])
     physical = []
@@ -300,8 +304,18 @@ def drive_shared_sim(
             physical = list(kernel.get_last_sensations() or [])
         except Exception:
             physical = []
+    seat = False
+    if physical_seat_active is not None:
+        try:
+            seat = bool(physical_seat_active(kernel))
+        except Exception:
+            seat = False
     if merge_feel_cache is not None:
-        sens = merge_feel_cache(physical, virtual, max_count=max_sensations)
+        sens = merge_feel_cache(
+            physical, virtual, max_count=max_sensations, physical_seat=seat
+        )
+    elif seat and not physical:
+        sens = []
     else:
         sens = (list(physical) + virtual)[:max_sensations]
     try:
